@@ -1,0 +1,1914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>More, Less, or Times? 🌟</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --more-color: #4ECDC4;
+      --less-color: #95E879;
+      --times-color: #FFB347;
+      --bg-gradient-1: #FFF6E9;
+      --bg-gradient-2: #FFE4D6;
+      --card-bg: #FFFFFF;
+      --text-primary: #2D3436;
+      --text-secondary: #636E72;
+      --success: #6BCB77;
+      --error: #FF6B6B;
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(135deg, var(--bg-gradient-1) 0%, var(--bg-gradient-2) 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Floating decorations */
+    .decoration {
+      position: fixed;
+      pointer-events: none;
+      opacity: 0.6;
+      z-index: 0;
+    }
+
+    .decoration.coin1 { top: 10%; left: 5%; font-size: 40px; animation: float 4s ease-in-out infinite; }
+    .decoration.coin2 { top: 30%; right: 8%; font-size: 32px; animation: float 5s ease-in-out infinite 0.5s; }
+    .decoration.coin3 { bottom: 20%; left: 10%; font-size: 36px; animation: float 4.5s ease-in-out infinite 1s; }
+    .decoration.star1 { top: 15%; right: 15%; font-size: 28px; animation: twinkle 2s ease-in-out infinite; }
+    .decoration.star2 { bottom: 30%; right: 5%; font-size: 24px; animation: twinkle 2.5s ease-in-out infinite 0.3s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(10deg); }
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+
+    /* Container */
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      padding: 30px 0;
+    }
+
+    .header h1 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 2.8rem;
+      color: var(--text-primary);
+      text-shadow: 3px 3px 0 #FFD93D;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    /* Screen management */
+    .screen {
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Menu buttons */
+    .menu-grid {
+      display: grid;
+      gap: 20px;
+      margin-top: 30px;
+    }
+
+    .menu-btn {
+      background: var(--card-bg);
+      border: none;
+      border-radius: 24px;
+      padding: 30px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      text-align: left;
+    }
+
+    .menu-btn:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .menu-btn .icon {
+      font-size: 3rem;
+      width: 80px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 20px;
+    }
+
+    .menu-btn.learn .icon { background: linear-gradient(135deg, #FFE66D, #FFD93D); }
+    .menu-btn.practice .icon { background: linear-gradient(135deg, #74EBD5, #4ECDC4); }
+    .menu-btn.challenge .icon { background: linear-gradient(135deg, #F093FB, #F5576C); }
+    .menu-btn.triangles .icon { background: linear-gradient(135deg, #A78BFA, #6366F1); }
+
+    /* Topic selection screen */
+    .topic-grid {
+      display: grid;
+      gap: 24px;
+      margin-top: 30px;
+    }
+
+    .topic-card {
+      background: var(--card-bg);
+      border: none;
+      border-radius: 28px;
+      padding: 40px 35px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 25px;
+      text-align: left;
+      width: 100%;
+    }
+
+    .topic-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .topic-card .topic-icon {
+      font-size: 3.5rem;
+      width: 90px;
+      height: 90px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 24px;
+      flex-shrink: 0;
+    }
+
+    .topic-card.mlt .topic-icon { background: linear-gradient(135deg, #FFE66D, #FFB347); }
+    .topic-card.tri .topic-icon { background: linear-gradient(135deg, #A78BFA, #6366F1); }
+
+    .topic-card .topic-text h2 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.7rem;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .topic-card .topic-text p {
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+      line-height: 1.5;
+    }
+
+    .menu-btn .text h3 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.5rem;
+      color: var(--text-primary);
+      margin-bottom: 5px;
+    }
+
+    .menu-btn .text p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--card-bg);
+      border-radius: 24px;
+      padding: 30px;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.4rem;
+      color: var(--text-primary);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Back button */
+    .back-btn {
+      background: none;
+      border: none;
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 600;
+      transition: color 0.3s;
+    }
+
+    .back-btn:hover {
+      color: var(--text-primary);
+    }
+
+    /* Learn mode */
+    .lesson-nav {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 25px;
+      flex-wrap: wrap;
+    }
+
+    .lesson-tab {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 30px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      background: #F0F0F0;
+      color: var(--text-secondary);
+    }
+
+    .lesson-tab.active {
+      color: white;
+    }
+
+    .lesson-tab.more.active { background: var(--more-color); }
+    .lesson-tab.less.active { background: var(--less-color); }
+    .lesson-tab.times.active { background: var(--times-color); }
+
+    .lesson-content {
+      display: none;
+    }
+
+    .lesson-content.active {
+      display: block;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .example-box {
+      background: linear-gradient(135deg, #F8F9FA, #E9ECEF);
+      border-radius: 16px;
+      padding: 25px;
+      margin: 20px 0;
+    }
+
+    .example-problem {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .keyword {
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-weight: 800;
+    }
+
+    .keyword.more { background: var(--more-color); color: white; }
+    .keyword.less { background: var(--less-color); color: #2D3436; }
+    .keyword.times { background: var(--times-color); color: white; }
+
+    .visual-demo {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
+      margin: 20px 0;
+    }
+
+    .person-coins {
+      text-align: center;
+    }
+
+    .person-name {
+      font-weight: 800;
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+      color: var(--text-primary);
+    }
+
+    .coins-row {
+      display: flex;
+      gap: 5px;
+      justify-content: center;
+      flex-wrap: wrap;
+      max-width: 200px;
+    }
+
+    .coin {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.75rem;
+      color: #8B4513;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+      animation: popIn 0.3s ease backwards;
+    }
+
+    .coin:nth-child(1) { animation-delay: 0.1s; }
+    .coin:nth-child(2) { animation-delay: 0.2s; }
+    .coin:nth-child(3) { animation-delay: 0.3s; }
+    .coin:nth-child(4) { animation-delay: 0.4s; }
+    .coin:nth-child(5) { animation-delay: 0.5s; }
+    .coin:nth-child(6) { animation-delay: 0.6s; }
+
+    @keyframes popIn {
+      from { transform: scale(0); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .coin-group {
+      border: 3px dashed var(--times-color);
+      border-radius: 12px;
+      padding: 8px;
+      margin: 5px;
+      display: inline-flex;
+      gap: 5px;
+    }
+
+    .explanation {
+      background: white;
+      border-left: 4px solid var(--more-color);
+      padding: 15px 20px;
+      border-radius: 0 12px 12px 0;
+      margin: 15px 0;
+      font-size: 1.05rem;
+      line-height: 1.7;
+    }
+
+    .explanation.less-exp { border-left-color: var(--less-color); }
+    .explanation.times-exp { border-left-color: var(--times-color); }
+
+    .formula {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.8rem;
+      text-align: center;
+      padding: 20px;
+      background: white;
+      border-radius: 16px;
+      margin: 15px 0;
+      color: var(--text-primary);
+    }
+
+    .tip-box {
+      background: linear-gradient(135deg, #FFF3CD, #FFE69C);
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 20px;
+      display: flex;
+      gap: 15px;
+      align-items: flex-start;
+    }
+
+    .tip-box .icon {
+      font-size: 2rem;
+    }
+
+    .tip-box .text {
+      font-weight: 600;
+      line-height: 1.6;
+    }
+
+    /* Practice mode */
+    .progress-bar {
+      height: 12px;
+      background: #E9ECEF;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 25px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #6BCB77, #4ECDC4);
+      border-radius: 10px;
+      transition: width 0.5s ease;
+    }
+
+    .problem-text {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.8;
+      margin-bottom: 25px;
+      text-align: center;
+    }
+
+    .step-indicator {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .step-dot {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #E9ECEF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: var(--text-secondary);
+      transition: all 0.3s;
+    }
+
+    .step-dot.active {
+      background: var(--more-color);
+      color: white;
+      transform: scale(1.1);
+    }
+
+    .step-dot.completed {
+      background: var(--success);
+      color: white;
+    }
+
+    .step-content {
+      display: none;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .step-content.active {
+      display: block;
+    }
+
+    .step-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.2rem;
+      color: var(--text-primary);
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    /* Keyword selection */
+    .keyword-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .keyword-btn {
+      padding: 15px 25px;
+      border: 3px solid #E9ECEF;
+      border-radius: 16px;
+      background: white;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .keyword-btn:hover {
+      transform: scale(1.05);
+    }
+
+    .keyword-btn.more:hover, .keyword-btn.more.selected { 
+      border-color: var(--more-color); 
+      background: var(--more-color);
+      color: white;
+    }
+    .keyword-btn.less:hover, .keyword-btn.less.selected { 
+      border-color: var(--less-color); 
+      background: var(--less-color);
+    }
+    .keyword-btn.times:hover, .keyword-btn.times.selected { 
+      border-color: var(--times-color); 
+      background: var(--times-color);
+      color: white;
+    }
+
+    /* Person selection */
+    .person-options {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .person-btn {
+      padding: 20px 30px;
+      border: 3px solid #E9ECEF;
+      border-radius: 20px;
+      background: white;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: center;
+      min-width: 140px;
+    }
+
+    .person-btn:hover {
+      transform: scale(1.05);
+      border-color: #B2BEC3;
+    }
+
+    .person-btn.selected {
+      border-color: var(--success);
+      background: #E8F8E8;
+    }
+
+    .person-btn .avatar {
+      font-size: 3rem;
+      margin-bottom: 10px;
+    }
+
+    .person-btn .name {
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: var(--text-primary);
+    }
+
+    .person-btn .amount {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      margin-top: 5px;
+    }
+
+    /* Operation selection */
+    .operation-options {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .operation-btn {
+      width: 70px;
+      height: 70px;
+      border: 3px solid #E9ECEF;
+      border-radius: 16px;
+      background: white;
+      font-size: 2rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .operation-btn:hover {
+      transform: scale(1.1);
+      border-color: #B2BEC3;
+    }
+
+    .operation-btn.selected {
+      border-color: var(--success);
+      background: #E8F8E8;
+    }
+
+    /* Answer input */
+    .answer-section {
+      text-align: center;
+      margin-top: 25px;
+    }
+
+    .equation-display {
+      font-family: 'Fredoka One', cursive;
+      font-size: 2rem;
+      color: var(--text-primary);
+      margin-bottom: 20px;
+    }
+
+    .answer-input {
+      width: 120px;
+      padding: 15px;
+      font-size: 1.5rem;
+      font-family: 'Fredoka One', cursive;
+      text-align: center;
+      border: 3px solid #E9ECEF;
+      border-radius: 16px;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    .answer-input:focus {
+      border-color: var(--more-color);
+    }
+
+    .submit-btn {
+      padding: 15px 40px;
+      background: linear-gradient(135deg, #6BCB77, #4ECDC4);
+      border: none;
+      border-radius: 16px;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.2rem;
+      color: white;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(107, 203, 119, 0.4);
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(107, 203, 119, 0.5);
+    }
+
+    .submit-btn:disabled {
+      background: #CCC;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* Feedback */
+    .feedback {
+      text-align: center;
+      padding: 30px;
+      border-radius: 20px;
+      margin-top: 20px;
+      display: none;
+      animation: bounceIn 0.5s ease;
+    }
+
+    @keyframes bounceIn {
+      0% { transform: scale(0.5); opacity: 0; }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .feedback.correct {
+      display: block;
+      background: linear-gradient(135deg, #D4EDDA, #C3E6CB);
+    }
+
+    .feedback.incorrect {
+      display: block;
+      background: linear-gradient(135deg, #FFE5E5, #FFCCCC);
+    }
+
+    .feedback .icon {
+      font-size: 4rem;
+      margin-bottom: 15px;
+    }
+
+    .feedback .message {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.5rem;
+      color: var(--text-primary);
+      margin-bottom: 10px;
+    }
+
+    .feedback .detail {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+    }
+
+    .next-btn {
+      padding: 12px 30px;
+      background: white;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .next-btn:hover {
+      transform: scale(1.05);
+    }
+
+    /* Hint */
+    .hint-btn {
+      padding: 10px 20px;
+      background: #FFF3CD;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: all 0.3s;
+    }
+
+    .hint-btn:hover {
+      background: #FFE69C;
+    }
+
+    .hint-text {
+      background: #FFF8E1;
+      border-radius: 12px;
+      padding: 15px 20px;
+      margin-top: 15px;
+      font-weight: 600;
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .hint-text.visible {
+      display: block;
+    }
+
+    /* Challenge mode */
+    .stats-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding: 15px 20px;
+      background: white;
+      border-radius: 16px;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat .label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    .stat .value {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.5rem;
+      color: var(--text-primary);
+    }
+
+    .timer {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.8rem;
+      color: var(--text-primary);
+    }
+
+    .timer.warning {
+      color: var(--error);
+      animation: pulse 0.5s ease infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    .challenge-feedback {
+      text-align: center;
+      padding: 14px 20px;
+      border-radius: 16px;
+      margin-top: 16px;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.4rem;
+      animation: bounceIn 0.35s ease;
+    }
+
+    .challenge-feedback.correct {
+      background: linear-gradient(135deg, #D4EDDA, #A8D5B0);
+      color: #1a6b2f;
+      box-shadow: 0 4px 16px rgba(40, 167, 69, 0.3);
+    }
+
+    .challenge-feedback.wrong {
+      background: linear-gradient(135deg, #FFE5E5, #FFBBBB);
+      color: #b81c1c;
+      box-shadow: 0 4px 16px rgba(220, 53, 69, 0.3);
+    }
+
+    /* Results screen */
+    .results {
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .results .trophy {
+      font-size: 5rem;
+      margin-bottom: 20px;
+      animation: bounce 1s ease infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+
+    .results h2 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 2rem;
+      color: var(--text-primary);
+      margin-bottom: 10px;
+    }
+
+    .results .score {
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      margin-bottom: 30px;
+    }
+
+    .stars {
+      font-size: 3rem;
+      margin-bottom: 30px;
+    }
+
+    .play-again-btn {
+      padding: 15px 40px;
+      background: linear-gradient(135deg, #F093FB, #F5576C);
+      border: none;
+      border-radius: 16px;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.2rem;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .play-again-btn:hover {
+      transform: scale(1.05);
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .header h1 {
+        font-size: 2rem;
+      }
+
+      .topic-card {
+        padding: 28px 22px;
+        gap: 18px;
+      }
+
+      .topic-card .topic-icon {
+        width: 70px;
+        height: 70px;
+        font-size: 2.6rem;
+      }
+
+      .topic-card .topic-text h2 {
+        font-size: 1.3rem;
+      }
+
+      .menu-btn {
+        padding: 20px;
+      }
+
+      .menu-btn .icon {
+        width: 60px;
+        height: 60px;
+        font-size: 2rem;
+      }
+
+      .problem-text {
+        font-size: 1.2rem;
+      }
+
+      .coin {
+        width: 30px;
+        height: 30px;
+        font-size: 0.65rem;
+      }
+
+      .operation-btn {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+      }
+
+      .formula {
+        font-size: 1.4rem;
+      }
+    }
+
+    .app-footer {
+      text-align: center;
+      padding: 16px;
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body>
+  <!-- Floating decorations -->
+  <div class="decoration coin1">🪙</div>
+  <div class="decoration coin2">🪙</div>
+  <div class="decoration coin3">💰</div>
+  <div class="decoration star1">⭐</div>
+  <div class="decoration star2">✨</div>
+
+  <div class="container">
+    <header class="header">
+      <h1>More, Less, or Times? 🪙</h1>
+      <p>Learn the magic words and solve comparison puzzles!</p>
+    </header>
+
+    <!-- More/Less/Times Menu Screen -->
+    <div id="menu-screen" class="screen active">
+      <button class="back-btn" onclick="window.location.href='index.html'">← All Topics</button>
+      <div class="menu-grid">
+        <button class="menu-btn learn" onclick="showScreen('learn')">
+          <div class="icon">💡</div>
+          <div class="text">
+            <h3>Learn</h3>
+            <p>Discover the magic words and what they mean</p>
+          </div>
+        </button>
+
+        <button class="menu-btn practice" onclick="showScreen('practice')">
+          <div class="icon">✏️</div>
+          <div class="text">
+            <h3>Practice</h3>
+            <p>Try problems step by step with hints</p>
+          </div>
+        </button>
+
+        <button class="menu-btn challenge" onclick="showScreen('challenge')">
+          <div class="icon">🏆</div>
+          <div class="text">
+            <h3>Challenge</h3>
+            <p>Test your skills and earn stars!</p>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Learn Screen -->
+    <div id="learn-screen" class="screen">
+      <button class="back-btn" onclick="showScreen('menu')">← Back to Menu</button>
+      
+      <div class="card">
+        <div class="card-title">📚 Spot the Magic Words</div>
+        
+        <div class="lesson-nav">
+          <button class="lesson-tab more active" onclick="showLesson('more')">More Than</button>
+          <button class="lesson-tab less" onclick="showLesson('less')">Less Than</button>
+          <button class="lesson-tab times" onclick="showLesson('times')">Times As Much</button>
+        </div>
+
+        <!-- More Than Lesson -->
+        <div id="lesson-more" class="lesson-content active">
+          <div class="example-box">
+            <div class="example-problem">
+              Amy has $15. Amy has <span class="keyword more">$5 more than</span> Ben.<br>
+              How much does Ben have?
+            </div>
+            
+            <div class="visual-demo">
+              <div class="person-coins">
+                <div class="person-name">Amy 👧</div>
+                <div class="coins-row">
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                </div>
+                <div class="coins-row" style="margin-top: 5px;">
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                </div>
+                <div class="coins-row" style="margin-top: 5px;">
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                </div>
+                <div style="margin-top: 10px; font-weight: 700;">$15</div>
+              </div>
+              
+              <div style="font-size: 2rem; align-self: center;">→</div>
+              
+              <div class="person-coins">
+                <div class="person-name">Ben 👦</div>
+                <div class="coins-row">
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                </div>
+                <div class="coins-row" style="margin-top: 5px;">
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                </div>
+                <div style="margin-top: 10px; font-weight: 700;">$10</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="explanation">
+            <strong>Think:</strong> Amy has <span class="keyword more">MORE</span> money than Ben. So Ben has <strong>LESS</strong> money.<br><br>
+            To find the smaller amount, we <strong>subtract</strong>!
+          </div>
+
+          <div class="formula">15 − 5 = 10 ✓</div>
+
+          <div class="tip-box">
+            <div class="icon">💡</div>
+            <div class="text">
+              <strong>Remember:</strong> When someone has "more than" another person, that other person has LESS. Subtract to find the smaller amount!
+            </div>
+          </div>
+        </div>
+
+        <!-- Less Than Lesson -->
+        <div id="lesson-less" class="lesson-content">
+          <div class="example-box">
+            <div class="example-problem">
+              Amy has $15. Amy has <span class="keyword less">$5 less than</span> Ben.<br>
+              How much does Ben have?
+            </div>
+            
+            <div class="visual-demo">
+              <div class="person-coins">
+                <div class="person-name">Amy 👧</div>
+                <div class="coins-row">
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                </div>
+                <div class="coins-row" style="margin-top: 5px;">
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                </div>
+                <div class="coins-row" style="margin-top: 5px;">
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                </div>
+                <div style="margin-top: 10px; font-weight: 700;">$15</div>
+              </div>
+              
+              <div style="font-size: 2rem; align-self: center;">→</div>
+              
+              <div class="person-coins">
+                <div class="person-name">Ben 👦</div>
+                <div class="coins-row">
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                </div>
+                <div class="coins-row" style="margin-top: 5px;">
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                </div>
+                <div class="coins-row" style="margin-top: 5px;">
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                </div>
+                <div class="coins-row" style="margin-top: 5px;">
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                </div>
+                <div style="margin-top: 10px; font-weight: 700;">$20</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="explanation less-exp">
+            <strong>Think:</strong> Amy has <span class="keyword less">LESS</span> money than Ben. So Ben has <strong>MORE</strong> money.<br><br>
+            To find the bigger amount, we <strong>add</strong>!
+          </div>
+
+          <div class="formula">15 + 5 = 20 ✓</div>
+
+          <div class="tip-box">
+            <div class="icon">💡</div>
+            <div class="text">
+              <strong>Remember:</strong> When someone has "less than" another person, that other person has MORE. Add to find the bigger amount!
+            </div>
+          </div>
+        </div>
+
+        <!-- Times As Much Lesson -->
+        <div id="lesson-times" class="lesson-content">
+          <div class="example-box">
+            <div class="example-problem">
+              Amy has $15. Amy has <span class="keyword times">3 times as much as</span> Ben.<br>
+              How much does Ben have?
+            </div>
+            
+            <div class="visual-demo">
+              <div class="person-coins">
+                <div class="person-name">Amy 👧 — $15</div>
+                <div style="display: flex; flex-wrap: wrap; justify-content: center;">
+                  <div class="coin-group">
+                    <div class="coin">$1</div>
+                    <div class="coin">$1</div>
+                    <div class="coin">$1</div>
+                    <div class="coin">$1</div>
+                    <div class="coin">$1</div>
+                  </div>
+                  <div class="coin-group">
+                    <div class="coin">$1</div>
+                    <div class="coin">$1</div>
+                    <div class="coin">$1</div>
+                    <div class="coin">$1</div>
+                    <div class="coin">$1</div>
+                  </div>
+                  <div class="coin-group">
+                    <div class="coin">$1</div>
+                    <div class="coin">$1</div>
+                    <div class="coin">$1</div>
+                    <div class="coin">$1</div>
+                    <div class="coin">$1</div>
+                  </div>
+                </div>
+                <div style="margin-top: 10px; font-weight: 700; color: var(--times-color);">3 groups of $5!</div>
+              </div>
+            </div>
+            
+            <div class="visual-demo" style="margin-top: 20px;">
+              <div class="person-coins">
+                <div class="person-name">Ben 👦 — $5</div>
+                <div class="coin-group">
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                  <div class="coin">$1</div>
+                </div>
+                <div style="margin-top: 10px; font-weight: 700; color: var(--times-color);">Just 1 group!</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="explanation times-exp">
+            <strong>Think:</strong> "Times as much" means we're talking about <strong>GROUPS</strong>!<br><br>
+            Amy has 3 groups of Ben's money. So Amy has MORE. To find Ben's amount (1 group), we <strong>divide</strong>!
+          </div>
+
+          <div class="formula">15 ÷ 3 = 5 ✓</div>
+
+          <div class="tip-box">
+            <div class="icon">💡</div>
+            <div class="text">
+              <strong>Remember:</strong> "Times as much" is different from "more" and "less"!<br><br>
+              • <strong>A has X times as much as B</strong> → A has MORE → Divide A's amount to find B<br>
+              • Think of it as groups: A has X groups of B's money
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Practice Screen -->
+    <div id="practice-screen" class="screen">
+      <button class="back-btn" onclick="showScreen('menu')">← Back to Menu</button>
+      
+      <div class="card">
+        <div class="progress-bar">
+          <div class="progress-fill" id="practice-progress" style="width: 0%"></div>
+        </div>
+
+        <div class="problem-text" id="practice-problem"></div>
+
+        <div class="step-indicator">
+          <div class="step-dot" id="step-dot-1">1</div>
+          <div class="step-dot" id="step-dot-2">2</div>
+          <div class="step-dot" id="step-dot-3">3</div>
+        </div>
+
+        <!-- Step 1: Find the keyword -->
+        <div id="step-1" class="step-content">
+          <div class="step-title">Step 1: Find the magic word! 🔍</div>
+          <div class="keyword-options" id="keyword-options"></div>
+          <button class="hint-btn" onclick="showHint(1)">💡 Need a hint?</button>
+          <div class="hint-text" id="hint-1"></div>
+        </div>
+
+        <!-- Step 2: Who has more? -->
+        <div id="step-2" class="step-content">
+          <div class="step-title">Step 2: Who has MORE money? 🤔</div>
+          <div class="person-options" id="person-options"></div>
+          <button class="hint-btn" onclick="showHint(2)">💡 Need a hint?</button>
+          <div class="hint-text" id="hint-2"></div>
+        </div>
+
+        <!-- Step 3: Choose operation and solve -->
+        <div id="step-3" class="step-content">
+          <div class="step-title">Step 3: Solve it! ✨</div>
+          <div class="operation-options">
+            <button class="operation-btn" onclick="selectOperation('+')">+</button>
+            <button class="operation-btn" onclick="selectOperation('−')">−</button>
+            <button class="operation-btn" onclick="selectOperation('×')">×</button>
+            <button class="operation-btn" onclick="selectOperation('÷')">÷</button>
+          </div>
+          <div class="answer-section">
+            <div class="equation-display" id="equation-display"></div>
+            <input type="number" class="answer-input" id="answer-input" placeholder="?">
+            <br>
+            <button class="submit-btn" id="submit-btn" onclick="checkAnswer()" disabled>Check Answer</button>
+          </div>
+          <button class="hint-btn" onclick="showHint(3)">💡 Need a hint?</button>
+          <div class="hint-text" id="hint-3"></div>
+        </div>
+
+        <!-- Feedback -->
+        <div class="feedback" id="feedback">
+          <div class="icon" id="feedback-icon"></div>
+          <div class="message" id="feedback-message"></div>
+          <div class="detail" id="feedback-detail"></div>
+          <button class="next-btn" onclick="nextProblem()">Next Problem →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Challenge Screen -->
+    <div id="challenge-screen" class="screen">
+      <button class="back-btn" onclick="endChallenge()">← End Challenge</button>
+      
+      <div class="card">
+        <div class="stats-bar">
+          <div class="stat">
+            <div class="label">Score</div>
+            <div class="value" id="challenge-score">0</div>
+          </div>
+          <div class="timer" id="challenge-timer">1:00</div>
+          <div class="stat">
+            <div class="label">Question</div>
+            <div class="value" id="challenge-question">1/10</div>
+          </div>
+        </div>
+
+        <div class="problem-text" id="challenge-problem"></div>
+
+        <div class="operation-options" id="challenge-operations">
+          <button class="operation-btn" onclick="challengeAnswer('+')">+</button>
+          <button class="operation-btn" onclick="challengeAnswer('−')">−</button>
+          <button class="operation-btn" onclick="challengeAnswer('×')">×</button>
+          <button class="operation-btn" onclick="challengeAnswer('÷')">÷</button>
+        </div>
+
+        <div class="answer-section">
+          <div class="equation-display" id="challenge-equation"></div>
+          <input type="number" class="answer-input" id="challenge-input" placeholder="?">
+          <br>
+          <button class="submit-btn" id="challenge-submit" onclick="submitChallenge()" disabled>Submit</button>
+          <div id="challenge-feedback" class="challenge-feedback" style="display:none;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Screen -->
+    <div id="results-screen" class="screen">
+      <div class="card results">
+        <div class="trophy">🏆</div>
+        <h2 id="results-title">Great Job!</h2>
+        <div class="score" id="results-score"></div>
+        <div class="stars" id="results-stars"></div>
+        <button class="play-again-btn" onclick="showScreen('menu')">Back to Menu</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="app-footer">v1.1</footer>
+
+  <script>
+    // Problem database
+    const problems = [
+      // More than problems
+      {
+        text: "Wendy has $81. Wendy has $9 more than Alex. How much does Alex have?",
+        person1: { name: "Wendy", amount: 81, emoji: "👧" },
+        person2: { name: "Alex", amount: 72, emoji: "👦" },
+        keyword: "more",
+        keywordText: "$9 more than",
+        number: 9,
+        operation: "−",
+        whoHasMore: "person1",
+        answer: 72
+      },
+      {
+        text: "Tom has $45. Tom has $12 more than Lucy. How much does Lucy have?",
+        person1: { name: "Tom", amount: 45, emoji: "👦" },
+        person2: { name: "Lucy", amount: 33, emoji: "👧" },
+        keyword: "more",
+        keywordText: "$12 more than",
+        number: 12,
+        operation: "−",
+        whoHasMore: "person1",
+        answer: 33
+      },
+      {
+        text: "Emma has $60. Emma has $15 more than Jack. How much does Jack have?",
+        person1: { name: "Emma", amount: 60, emoji: "👧" },
+        person2: { name: "Jack", amount: 45, emoji: "👦" },
+        keyword: "more",
+        keywordText: "$15 more than",
+        number: 15,
+        operation: "−",
+        whoHasMore: "person1",
+        answer: 45
+      },
+      // Less than problems
+      {
+        text: "Wendy has $81. Wendy has $9 less than John. How much does John have?",
+        person1: { name: "Wendy", amount: 81, emoji: "👧" },
+        person2: { name: "John", amount: 90, emoji: "👦" },
+        keyword: "less",
+        keywordText: "$9 less than",
+        number: 9,
+        operation: "+",
+        whoHasMore: "person2",
+        answer: 90
+      },
+      {
+        text: "Mike has $35. Mike has $8 less than Sarah. How much does Sarah have?",
+        person1: { name: "Mike", amount: 35, emoji: "👦" },
+        person2: { name: "Sarah", amount: 43, emoji: "👧" },
+        keyword: "less",
+        keywordText: "$8 less than",
+        number: 8,
+        operation: "+",
+        whoHasMore: "person2",
+        answer: 43
+      },
+      {
+        text: "Lily has $50. Lily has $20 less than Max. How much does Max have?",
+        person1: { name: "Lily", amount: 50, emoji: "👧" },
+        person2: { name: "Max", amount: 70, emoji: "👦" },
+        keyword: "less",
+        keywordText: "$20 less than",
+        number: 20,
+        operation: "+",
+        whoHasMore: "person2",
+        answer: 70
+      },
+      // Times as much problems
+      {
+        text: "Wendy has $81. Wendy has 9 times as much money as Ken. How much does Ken have?",
+        person1: { name: "Wendy", amount: 81, emoji: "👧" },
+        person2: { name: "Ken", amount: 9, emoji: "👦" },
+        keyword: "times",
+        keywordText: "9 times as much",
+        number: 9,
+        operation: "÷",
+        whoHasMore: "person1",
+        answer: 9
+      },
+      {
+        text: "Zara has $56. Zara has 7 times as much money as Sam. How much does Sam have?",
+        person1: { name: "Zara", amount: 56, emoji: "👧" },
+        person2: { name: "Sam", amount: 8, emoji: "👦" },
+        keyword: "times",
+        keywordText: "7 times as much",
+        number: 7,
+        operation: "÷",
+        whoHasMore: "person1",
+        answer: 8
+      },
+      {
+        text: "Anna has $36. Anna has 4 times as much money as Ben. How much does Ben have?",
+        person1: { name: "Anna", amount: 36, emoji: "👧" },
+        person2: { name: "Ben", amount: 9, emoji: "👦" },
+        keyword: "times",
+        keywordText: "4 times as much",
+        number: 4,
+        operation: "÷",
+        whoHasMore: "person1",
+        answer: 9
+      },
+      {
+        text: "David has $48. David has 6 times as much money as Ella. How much does Ella have?",
+        person1: { name: "David", amount: 48, emoji: "👦" },
+        person2: { name: "Ella", amount: 8, emoji: "👧" },
+        keyword: "times",
+        keywordText: "6 times as much",
+        number: 6,
+        operation: "÷",
+        whoHasMore: "person1",
+        answer: 8
+      },
+      {
+        text: "Sophie has $72. Sophie has 8 times as much money as Leo. How much does Leo have?",
+        person1: { name: "Sophie", amount: 72, emoji: "👧" },
+        person2: { name: "Leo", amount: 9, emoji: "👦" },
+        keyword: "times",
+        keywordText: "8 times as much",
+        number: 8,
+        operation: "÷",
+        whoHasMore: "person1",
+        answer: 9
+      },
+      {
+        text: "Carlos has $100. Carlos has 5 times as much money as Maya. How much does Maya have?",
+        person1: { name: "Carlos", amount: 100, emoji: "👦" },
+        person2: { name: "Maya", amount: 20, emoji: "👧" },
+        keyword: "times",
+        keywordText: "5 times as much",
+        number: 5,
+        operation: "÷",
+        whoHasMore: "person1",
+        answer: 20
+      },
+      {
+        text: "Kim has $42. Kim has 7 times as much money as Pat. How much does Pat have?",
+        person1: { name: "Kim", amount: 42, emoji: "👧" },
+        person2: { name: "Pat", amount: 6, emoji: "👦" },
+        keyword: "times",
+        keywordText: "7 times as much",
+        number: 7,
+        operation: "÷",
+        whoHasMore: "person1",
+        answer: 6
+      },
+      // Additional more than problems
+      {
+        text: "Ben has $50. Ben has $14 more than Zoe. How much does Zoe have?",
+        person1: { name: "Ben", amount: 50, emoji: "👦" },
+        person2: { name: "Zoe", amount: 36, emoji: "👧" },
+        keyword: "more",
+        keywordText: "$14 more than",
+        number: 14,
+        operation: "−",
+        whoHasMore: "person1",
+        answer: 36
+      },
+      // Additional less than problems
+      {
+        text: "Jake has $28. Jake has $7 less than Amy. How much does Amy have?",
+        person1: { name: "Jake", amount: 28, emoji: "👦" },
+        person2: { name: "Amy", amount: 35, emoji: "👧" },
+        keyword: "less",
+        keywordText: "$7 less than",
+        number: 7,
+        operation: "+",
+        whoHasMore: "person2",
+        answer: 35
+      }
+    ];
+
+    // State
+    let currentScreen = 'menu';
+    let currentProblem = null;
+    let currentStep = 1;
+    let practiceIndex = 0;
+    let practiceProblems = [];
+    let selectedKeyword = null;
+    let selectedPerson = null;
+    let selectedOperation = null;
+
+    // Challenge state
+    let challengeScore = 0;
+    let challengeQuestion = 0;
+    let challengeTimer = 60;
+    let challengeInterval = null;
+    let challengeProblems = [];
+    let challengeSelectedOp = null;
+    let challengeEnded = false;
+
+    // Screen management
+    function showScreen(screen) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screen + '-screen').classList.add('active');
+      currentScreen = screen;
+
+      if (screen === 'practice') {
+        startPractice();
+      } else if (screen === 'challenge') {
+        startChallenge();
+      }
+
+    }
+
+    // Learn mode
+    function showLesson(lesson) {
+      document.querySelectorAll('.lesson-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.lesson-content').forEach(c => c.classList.remove('active'));
+      document.querySelector('.lesson-tab.' + lesson).classList.add('active');
+      document.getElementById('lesson-' + lesson).classList.add('active');
+    }
+
+    // Practice mode
+    function startPractice() {
+      practiceIndex = 0;
+      practiceProblems = [...problems].sort(() => Math.random() - 0.5).slice(0, 6);
+      loadPracticeProblem();
+    }
+
+    function loadPracticeProblem() {
+      if (practiceIndex >= practiceProblems.length) {
+        showResults(practiceProblems.length, practiceProblems.length, false);
+        return;
+      }
+
+      currentProblem = practiceProblems[practiceIndex];
+      currentStep = 1;
+      selectedKeyword = null;
+      selectedPerson = null;
+      selectedOperation = null;
+
+      // Update progress
+      const progress = (practiceIndex / practiceProblems.length) * 100;
+      document.getElementById('practice-progress').style.width = progress + '%';
+
+      // Highlight keywords in problem text
+      let problemHtml = currentProblem.text.replace(
+        currentProblem.keywordText,
+        `<span class="keyword-highlight" style="text-decoration: underline; text-decoration-style: wavy;">${currentProblem.keywordText}</span>`
+      );
+      document.getElementById('practice-problem').innerHTML = problemHtml;
+
+      // Setup keyword options
+      const keywordOptions = document.getElementById('keyword-options');
+      keywordOptions.innerHTML = `
+        <button class="keyword-btn more" onclick="selectKeyword('more')">"more than"</button>
+        <button class="keyword-btn less" onclick="selectKeyword('less')">"less than"</button>
+        <button class="keyword-btn times" onclick="selectKeyword('times')">"times as much"</button>
+      `;
+
+      // Setup person options
+      const personOptions = document.getElementById('person-options');
+      personOptions.innerHTML = `
+        <button class="person-btn" id="person1-btn" onclick="selectPerson('person1')">
+          <div class="avatar">${currentProblem.person1.emoji}</div>
+          <div class="name">${currentProblem.person1.name}</div>
+          <div class="amount">$${currentProblem.person1.amount}</div>
+        </button>
+        <button class="person-btn" id="person2-btn" onclick="selectPerson('person2')">
+          <div class="avatar">${currentProblem.person2.emoji}</div>
+          <div class="name">${currentProblem.person2.name}</div>
+          <div class="amount">?</div>
+        </button>
+      `;
+
+      // Reset step display
+      updateStepDisplay();
+      
+      // Reset hints
+      document.querySelectorAll('.hint-text').forEach(h => h.classList.remove('visible'));
+      
+      // Reset feedback
+      document.getElementById('feedback').className = 'feedback';
+
+      // Reset operation buttons
+      document.querySelectorAll('.operation-btn').forEach(b => b.classList.remove('selected'));
+      
+      // Reset answer
+      document.getElementById('answer-input').value = '';
+      document.getElementById('equation-display').textContent = '';
+      document.getElementById('submit-btn').disabled = true;
+    }
+
+    function updateStepDisplay() {
+      // Update step dots
+      for (let i = 1; i <= 3; i++) {
+        const dot = document.getElementById('step-dot-' + i);
+        dot.classList.remove('active', 'completed');
+        if (i < currentStep) {
+          dot.classList.add('completed');
+        } else if (i === currentStep) {
+          dot.classList.add('active');
+        }
+      }
+
+      // Show current step content
+      document.querySelectorAll('.step-content').forEach(s => s.classList.remove('active'));
+      document.getElementById('step-' + currentStep).classList.add('active');
+    }
+
+    function selectKeyword(keyword) {
+      selectedKeyword = keyword;
+      document.querySelectorAll('.keyword-btn').forEach(b => b.classList.remove('selected'));
+      document.querySelector('.keyword-btn.' + keyword).classList.add('selected');
+
+      if (keyword === currentProblem.keyword) {
+        setTimeout(() => {
+          currentStep = 2;
+          updateStepDisplay();
+        }, 500);
+      }
+    }
+
+    function selectPerson(person) {
+      selectedPerson = person;
+      document.querySelectorAll('.person-btn').forEach(b => b.classList.remove('selected'));
+      document.getElementById(person + '-btn').classList.add('selected');
+
+      if (person === currentProblem.whoHasMore) {
+        setTimeout(() => {
+          currentStep = 3;
+          updateStepDisplay();
+        }, 500);
+      }
+    }
+
+    function selectOperation(op) {
+      selectedOperation = op;
+      document.querySelectorAll('#step-3 .operation-btn').forEach(b => b.classList.remove('selected'));
+      event.target.classList.add('selected');
+
+      // Update equation display
+      const equation = `${currentProblem.person1.amount} ${op} ${currentProblem.number} = `;
+      document.getElementById('equation-display').textContent = equation;
+      document.getElementById('submit-btn').disabled = false;
+    }
+
+    function showHint(step) {
+      const hints = {
+        1: `Look for words like "more than", "less than", or "times as much" in the problem. The magic word here is about "${currentProblem.keyword}"!`,
+        2: currentProblem.keyword === 'times' 
+          ? `Think: "${currentProblem.person1.name} has X times as much" means ${currentProblem.person1.name} has MANY groups of ${currentProblem.person2.name}'s money. So ${currentProblem.person1.name} has MORE!`
+          : currentProblem.keyword === 'more'
+            ? `"${currentProblem.person1.name} has more than ${currentProblem.person2.name}" means ${currentProblem.person1.name} has the bigger amount!`
+            : `"${currentProblem.person1.name} has less than ${currentProblem.person2.name}" means ${currentProblem.person2.name} has the bigger amount!`,
+        3: currentProblem.keyword === 'times'
+          ? `"Times as much" means groups! To find one group, we divide. Try ÷`
+          : currentProblem.keyword === 'more'
+            ? `${currentProblem.person1.name} has more, so ${currentProblem.person2.name} has less. To find a smaller number, we subtract. Try −`
+            : `${currentProblem.person1.name} has less, so ${currentProblem.person2.name} has more. To find a bigger number, we add. Try +`
+      };
+
+      document.getElementById('hint-' + step).textContent = hints[step];
+      document.getElementById('hint-' + step).classList.add('visible');
+    }
+
+    function checkAnswer() {
+      const userAnswer = parseInt(document.getElementById('answer-input').value);
+      const feedback = document.getElementById('feedback');
+      const icon = document.getElementById('feedback-icon');
+      const message = document.getElementById('feedback-message');
+      const detail = document.getElementById('feedback-detail');
+
+      const operationCorrect = selectedOperation === currentProblem.operation;
+      const answerCorrect = userAnswer === currentProblem.answer;
+
+      if (operationCorrect && answerCorrect) {
+        feedback.className = 'feedback correct';
+        icon.textContent = '🎉';
+        message.textContent = 'Perfect!';
+        detail.textContent = `${currentProblem.person2.name} has $${currentProblem.answer}. Great job!`;
+      } else if (!operationCorrect) {
+        feedback.className = 'feedback incorrect';
+        icon.textContent = '🤔';
+        message.textContent = 'Not quite!';
+        if (currentProblem.keyword === 'times') {
+          detail.textContent = `Remember: "times as much" means groups! We need to divide to find one group.`;
+        } else if (currentProblem.keyword === 'more') {
+          detail.textContent = `"More than" means ${currentProblem.person1.name} is bigger. To find ${currentProblem.person2.name}'s smaller amount, we subtract.`;
+        } else {
+          detail.textContent = `"Less than" means ${currentProblem.person2.name} is bigger. To find ${currentProblem.person2.name}'s bigger amount, we add.`;
+        }
+      } else {
+        feedback.className = 'feedback incorrect';
+        icon.textContent = '🤔';
+        message.textContent = 'Almost!';
+        detail.textContent = `The operation is right! Try: ${currentProblem.person1.amount} ${currentProblem.operation} ${currentProblem.number} = ?`;
+      }
+    }
+
+    function nextProblem() {
+      practiceIndex++;
+      loadPracticeProblem();
+    }
+
+    // Challenge mode
+    function startChallenge() {
+      challengeScore = 0;
+      challengeQuestion = 0;
+      challengeTimer = 60;
+      challengeSelectedOp = null;
+      challengeEnded = false;
+      challengeProblems = [...problems].sort(() => Math.random() - 0.5).slice(0, 10);
+      
+      document.getElementById('challenge-score').textContent = '0';
+      document.getElementById('challenge-question').textContent = '1/10';
+      document.getElementById('challenge-timer').classList.remove('warning');
+      document.getElementById('challenge-feedback').style.display = 'none';
+
+      loadChallengeProblem();
+      startChallengeTimer();
+    }
+
+    function loadChallengeProblem() {
+      if (challengeQuestion >= challengeProblems.length) {
+        endChallenge();
+        return;
+      }
+
+      currentProblem = challengeProblems[challengeQuestion];
+      challengeSelectedOp = null;
+
+      // Highlight the keyword
+      let problemHtml = currentProblem.text.replace(
+        currentProblem.keywordText,
+        `<span class="keyword ${currentProblem.keyword}">${currentProblem.keywordText}</span>`
+      );
+      document.getElementById('challenge-problem').innerHTML = problemHtml;
+
+      // Reset
+      document.querySelectorAll('#challenge-operations .operation-btn').forEach(b => b.classList.remove('selected'));
+      document.getElementById('challenge-input').value = '';
+      document.getElementById('challenge-equation').textContent = '';
+      document.getElementById('challenge-submit').disabled = true;
+    }
+
+    function challengeAnswer(op) {
+      challengeSelectedOp = op;
+      document.querySelectorAll('#challenge-operations .operation-btn').forEach(b => b.classList.remove('selected'));
+      event.target.classList.add('selected');
+
+      const equation = `${currentProblem.person1.amount} ${op} ${currentProblem.number} = `;
+      document.getElementById('challenge-equation').textContent = equation;
+      document.getElementById('challenge-submit').disabled = false;
+    }
+
+    function submitChallenge() {
+      if (challengeEnded) return;
+
+      const userAnswer = parseInt(document.getElementById('challenge-input').value);
+      const isCorrect = challengeSelectedOp === currentProblem.operation && userAnswer === currentProblem.answer;
+
+      if (isCorrect) {
+        challengeScore += 10;
+        document.getElementById('challenge-score').textContent = challengeScore;
+      }
+
+      // Show feedback banner
+      const feedback = document.getElementById('challenge-feedback');
+      feedback.style.display = 'block';
+      feedback.className = 'challenge-feedback ' + (isCorrect ? 'correct' : 'wrong');
+      if (isCorrect) {
+        feedback.innerHTML = '✓ Correct!';
+      } else {
+        feedback.innerHTML = `✗ Wrong! &nbsp; ${currentProblem.person1.amount} ${currentProblem.operation} ${currentProblem.number} = ${currentProblem.answer}`;
+      }
+
+      // Lock inputs during feedback
+      document.getElementById('challenge-submit').disabled = true;
+      document.querySelectorAll('#challenge-operations .operation-btn').forEach(b => b.disabled = true);
+      document.getElementById('challenge-input').disabled = true;
+
+      challengeQuestion++;
+
+      setTimeout(() => {
+        // Unlock inputs
+        document.querySelectorAll('#challenge-operations .operation-btn').forEach(b => b.disabled = false);
+        document.getElementById('challenge-input').disabled = false;
+        feedback.style.display = 'none';
+
+        if (challengeQuestion >= 10) {
+          endChallenge();
+        } else {
+          document.getElementById('challenge-question').textContent = `${challengeQuestion + 1}/10`;
+          loadChallengeProblem();
+        }
+      }, 1200);
+    }
+
+    function startChallengeTimer() {
+      updateTimerDisplay();
+      challengeInterval = setInterval(() => {
+        challengeTimer--;
+        updateTimerDisplay();
+        
+        if (challengeTimer <= 10) {
+          document.getElementById('challenge-timer').classList.add('warning');
+        }
+        
+        if (challengeTimer <= 0) {
+          endChallenge();
+        }
+      }, 1000);
+    }
+
+    function updateTimerDisplay() {
+      const minutes = Math.floor(challengeTimer / 60);
+      const seconds = challengeTimer % 60;
+      document.getElementById('challenge-timer').textContent = 
+        `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    function endChallenge() {
+      if (challengeEnded) return;
+      challengeEnded = true;
+      if (challengeInterval) {
+        clearInterval(challengeInterval);
+        challengeInterval = null;
+      }
+      // Hide any lingering feedback
+      document.getElementById('challenge-feedback').style.display = 'none';
+      showResults(challengeScore, 100, true);
+    }
+
+    function showResults(score, maxScore, isChallenge) {
+      const percentage = score / maxScore;
+      let stars = '';
+      let title = '';
+
+      if (percentage >= 0.9) {
+        stars = '⭐⭐⭐';
+        title = 'Amazing! 🎉';
+      } else if (percentage >= 0.7) {
+        stars = '⭐⭐';
+        title = 'Great Job! 👏';
+      } else if (percentage >= 0.5) {
+        stars = '⭐';
+        title = 'Good Try! 💪';
+      } else {
+        stars = '🌟';
+        title = 'Keep Practicing! 📚';
+      }
+
+      document.getElementById('results-title').textContent = title;
+      document.getElementById('results-score').textContent = isChallenge 
+        ? `Score: ${score} points`
+        : `Completed ${score} problems!`;
+      document.getElementById('results-stars').textContent = stars;
+
+      showScreen('results');
+    }
+
+    // Initialize with answer input listener
+    document.getElementById('answer-input').addEventListener('input', function() {
+      document.getElementById('submit-btn').disabled = !this.value || !selectedOperation;
+    });
+
+    document.getElementById('challenge-input').addEventListener('input', function() {
+      document.getElementById('challenge-submit').disabled = !this.value || !challengeSelectedOp;
+    });
+
+    // Allow Enter key to submit
+    document.getElementById('answer-input').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter' && !document.getElementById('submit-btn').disabled) {
+        checkAnswer();
+      }
+    });
+
+    document.getElementById('challenge-input').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter' && !document.getElementById('challenge-submit').disabled) {
+        submitChallenge();
+      }
+    });
+  </script>
+</body>
+</html>
