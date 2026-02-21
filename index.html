@@ -141,6 +141,61 @@
     .menu-btn.learn .icon { background: linear-gradient(135deg, #FFE66D, #FFD93D); }
     .menu-btn.practice .icon { background: linear-gradient(135deg, #74EBD5, #4ECDC4); }
     .menu-btn.challenge .icon { background: linear-gradient(135deg, #F093FB, #F5576C); }
+    .menu-btn.triangles .icon { background: linear-gradient(135deg, #A78BFA, #6366F1); }
+
+    /* Topic selection screen */
+    .topic-grid {
+      display: grid;
+      gap: 24px;
+      margin-top: 30px;
+    }
+
+    .topic-card {
+      background: var(--card-bg);
+      border: none;
+      border-radius: 28px;
+      padding: 40px 35px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 25px;
+      text-align: left;
+      width: 100%;
+    }
+
+    .topic-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .topic-card .topic-icon {
+      font-size: 3.5rem;
+      width: 90px;
+      height: 90px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 24px;
+      flex-shrink: 0;
+    }
+
+    .topic-card.mlt .topic-icon { background: linear-gradient(135deg, #FFE66D, #FFB347); }
+    .topic-card.tri .topic-icon { background: linear-gradient(135deg, #A78BFA, #6366F1); }
+
+    .topic-card .topic-text h2 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.7rem;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .topic-card .topic-text p {
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+      line-height: 1.5;
+    }
 
     .menu-btn .text h3 {
       font-family: 'Fredoka One', cursive;
@@ -799,6 +854,21 @@
         font-size: 2rem;
       }
 
+      .topic-card {
+        padding: 28px 22px;
+        gap: 18px;
+      }
+
+      .topic-card .topic-icon {
+        width: 70px;
+        height: 70px;
+        font-size: 2.6rem;
+      }
+
+      .topic-card .topic-text h2 {
+        font-size: 1.3rem;
+      }
+
       .menu-btn {
         padding: 20px;
       }
@@ -841,12 +911,34 @@
 
   <div class="container">
     <header class="header">
-      <h1>More, Less, or Times? 🌟</h1>
-      <p>Learn the magic words in math problems!</p>
+      <h1>Math Adventures 🌟</h1>
+      <p>Choose a topic to get started!</p>
     </header>
 
-    <!-- Menu Screen -->
-    <div id="menu-screen" class="screen active">
+    <!-- Topic Selection Screen -->
+    <div id="topic-screen" class="screen active">
+      <div class="topic-grid">
+        <button class="topic-card mlt" onclick="showScreen('menu')">
+          <div class="topic-icon">🪙</div>
+          <div class="topic-text">
+            <h2>More, Less, or Times?</h2>
+            <p>Learn the magic words in math problems and solve comparison puzzles</p>
+          </div>
+        </button>
+
+        <button class="topic-card tri" onclick="window.location.href='triangles.html'">
+          <div class="topic-icon">🔺</div>
+          <div class="topic-text">
+            <h2>Triangle Explorer</h2>
+            <p>Discover and classify triangles by their sides and angles</p>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- More/Less/Times Menu Screen -->
+    <div id="menu-screen" class="screen">
+      <button class="back-btn" onclick="showScreen('topic')">← Choose Topic</button>
       <div class="menu-grid">
         <button class="menu-btn learn" onclick="showScreen('learn')">
           <div class="icon">💡</div>
@@ -1396,6 +1488,14 @@
         startPractice();
       } else if (screen === 'challenge') {
         startChallenge();
+      }
+
+      // Update header subtitle based on screen
+      const subtitle = document.querySelector('.header p');
+      if (screen === 'topic') {
+        subtitle.textContent = 'Choose a topic to get started!';
+      } else {
+        subtitle.textContent = 'More, Less, or Times?';
       }
     }
 
