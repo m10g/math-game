@@ -797,6 +797,28 @@
       50% { transform: scale(1.1); }
     }
 
+    .challenge-feedback {
+      text-align: center;
+      padding: 14px 20px;
+      border-radius: 16px;
+      margin-top: 16px;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.4rem;
+      animation: bounceIn 0.35s ease;
+    }
+
+    .challenge-feedback.correct {
+      background: linear-gradient(135deg, #D4EDDA, #A8D5B0);
+      color: #1a6b2f;
+      box-shadow: 0 4px 16px rgba(40, 167, 69, 0.3);
+    }
+
+    .challenge-feedback.wrong {
+      background: linear-gradient(135deg, #FFE5E5, #FFBBBB);
+      color: #b81c1c;
+      box-shadow: 0 4px 16px rgba(220, 53, 69, 0.3);
+    }
+
     /* Results screen */
     .results {
       text-align: center;
@@ -1304,6 +1326,7 @@
           <input type="number" class="answer-input" id="challenge-input" placeholder="?">
           <br>
           <button class="submit-btn" id="challenge-submit" onclick="submitChallenge()" disabled>Submit</button>
+          <div id="challenge-feedback" class="challenge-feedback" style="display:none;"></div>
         </div>
       </div>
     </div>
@@ -1404,15 +1427,15 @@
         answer: 9
       },
       {
-        text: "Ray has $729. Ray has 9 times as much money as Wendy. How much does Wendy have?",
-        person1: { name: "Ray", amount: 729, emoji: "👦" },
-        person2: { name: "Wendy", amount: 81, emoji: "👧" },
+        text: "Zara has $56. Zara has 7 times as much money as Sam. How much does Sam have?",
+        person1: { name: "Zara", amount: 56, emoji: "👧" },
+        person2: { name: "Sam", amount: 8, emoji: "👦" },
         keyword: "times",
-        keywordText: "9 times as much",
-        number: 9,
+        keywordText: "7 times as much",
+        number: 7,
         operation: "÷",
         whoHasMore: "person1",
-        answer: 81
+        answer: 8
       },
       {
         text: "Anna has $36. Anna has 4 times as much money as Ben. How much does Ben have?",
@@ -1457,6 +1480,41 @@
         operation: "÷",
         whoHasMore: "person1",
         answer: 20
+      },
+      {
+        text: "Kim has $42. Kim has 7 times as much money as Pat. How much does Pat have?",
+        person1: { name: "Kim", amount: 42, emoji: "👧" },
+        person2: { name: "Pat", amount: 6, emoji: "👦" },
+        keyword: "times",
+        keywordText: "7 times as much",
+        number: 7,
+        operation: "÷",
+        whoHasMore: "person1",
+        answer: 6
+      },
+      // Additional more than problems
+      {
+        text: "Ben has $50. Ben has $14 more than Zoe. How much does Zoe have?",
+        person1: { name: "Ben", amount: 50, emoji: "👦" },
+        person2: { name: "Zoe", amount: 36, emoji: "👧" },
+        keyword: "more",
+        keywordText: "$14 more than",
+        number: 14,
+        operation: "−",
+        whoHasMore: "person1",
+        answer: 36
+      },
+      // Additional less than problems
+      {
+        text: "Jake has $28. Jake has $7 less than Amy. How much does Amy have?",
+        person1: { name: "Jake", amount: 28, emoji: "👦" },
+        person2: { name: "Amy", amount: 35, emoji: "👧" },
+        keyword: "less",
+        keywordText: "$7 less than",
+        number: 7,
+        operation: "+",
+        whoHasMore: "person2",
+        answer: 35
       }
     ];
 
@@ -1477,6 +1535,7 @@
     let challengeInterval = null;
     let challengeProblems = [];
     let challengeSelectedOp = null;
+    let challengeEnded = false;
 
     // Screen management
     function showScreen(screen) {
@@ -1696,11 +1755,14 @@
       challengeQuestion = 0;
       challengeTimer = 60;
       challengeSelectedOp = null;
+      challengeEnded = false;
       challengeProblems = [...problems].sort(() => Math.random() - 0.5).slice(0, 10);
       
       document.getElementById('challenge-score').textContent = '0';
       document.getElementById('challenge-question').textContent = '1/10';
-      
+      document.getElementById('challenge-timer').classList.remove('warning');
+      document.getElementById('challenge-feedback').style.display = 'none';
+
       loadChallengeProblem();
       startChallengeTimer();
     }
@@ -1739,21 +1801,46 @@
     }
 
     function submitChallenge() {
+      if (challengeEnded) return;
+
       const userAnswer = parseInt(document.getElementById('challenge-input').value);
-      
-      if (challengeSelectedOp === currentProblem.operation && userAnswer === currentProblem.answer) {
+      const isCorrect = challengeSelectedOp === currentProblem.operation && userAnswer === currentProblem.answer;
+
+      if (isCorrect) {
         challengeScore += 10;
         document.getElementById('challenge-score').textContent = challengeScore;
       }
 
-      challengeQuestion++;
-      document.getElementById('challenge-question').textContent = `${challengeQuestion + 1}/10`;
-      
-      if (challengeQuestion >= 10) {
-        endChallenge();
+      // Show feedback banner
+      const feedback = document.getElementById('challenge-feedback');
+      feedback.style.display = 'block';
+      feedback.className = 'challenge-feedback ' + (isCorrect ? 'correct' : 'wrong');
+      if (isCorrect) {
+        feedback.innerHTML = '✓ Correct!';
       } else {
-        loadChallengeProblem();
+        feedback.innerHTML = `✗ Wrong! &nbsp; ${currentProblem.person1.amount} ${currentProblem.operation} ${currentProblem.number} = ${currentProblem.answer}`;
       }
+
+      // Lock inputs during feedback
+      document.getElementById('challenge-submit').disabled = true;
+      document.querySelectorAll('#challenge-operations .operation-btn').forEach(b => b.disabled = true);
+      document.getElementById('challenge-input').disabled = true;
+
+      challengeQuestion++;
+
+      setTimeout(() => {
+        // Unlock inputs
+        document.querySelectorAll('#challenge-operations .operation-btn').forEach(b => b.disabled = false);
+        document.getElementById('challenge-input').disabled = false;
+        feedback.style.display = 'none';
+
+        if (challengeQuestion >= 10) {
+          endChallenge();
+        } else {
+          document.getElementById('challenge-question').textContent = `${challengeQuestion + 1}/10`;
+          loadChallengeProblem();
+        }
+      }, 1200);
     }
 
     function startChallengeTimer() {
@@ -1780,10 +1867,14 @@
     }
 
     function endChallenge() {
+      if (challengeEnded) return;
+      challengeEnded = true;
       if (challengeInterval) {
         clearInterval(challengeInterval);
         challengeInterval = null;
       }
+      // Hide any lingering feedback
+      document.getElementById('challenge-feedback').style.display = 'none';
       showResults(challengeScore, 100, true);
     }
 
