@@ -1292,10 +1292,10 @@
             <div class="label">Score</div>
             <div class="value" id="challenge-score">0</div>
           </div>
-          <div class="timer" id="challenge-timer">1:00</div>
+          <div class="timer" id="challenge-timer">1:30</div>
           <div class="stat">
             <div class="label">Question</div>
-            <div class="value" id="challenge-question">1/10</div>
+            <div class="value" id="challenge-question">1/5</div>
           </div>
         </div>
 
@@ -1520,7 +1520,7 @@
     // Challenge state
     let challengeScore = 0;
     let challengeQuestion = 0;
-    let challengeTimer = 60;
+    let challengeTimer = 90;
     let challengeInterval = null;
     let challengeProblems = [];
     let challengeSelectedOp = null;
@@ -1735,13 +1735,13 @@
     function startChallenge() {
       challengeScore = 0;
       challengeQuestion = 0;
-      challengeTimer = 60;
+      challengeTimer = 90;
       challengeSelectedOp = null;
       challengeEnded = false;
-      challengeProblems = [...problems].sort(() => Math.random() - 0.5).slice(0, 10);
-      
+      challengeProblems = [...problems].sort(() => Math.random() - 0.5).slice(0, 5);
+
       document.getElementById('challenge-score').textContent = '0';
-      document.getElementById('challenge-question').textContent = '1/10';
+      document.getElementById('challenge-question').textContent = '1/5';
       document.getElementById('challenge-timer').classList.remove('warning');
       document.getElementById('challenge-feedback').style.display = 'none';
 
@@ -1816,10 +1816,10 @@
         document.getElementById('challenge-input').disabled = false;
         feedback.style.display = 'none';
 
-        if (challengeQuestion >= 10) {
+        if (challengeQuestion >= 5) {
           endChallenge();
         } else {
-          document.getElementById('challenge-question').textContent = `${challengeQuestion + 1}/10`;
+          document.getElementById('challenge-question').textContent = `${challengeQuestion + 1}/5`;
           loadChallengeProblem();
         }
       }, 1200);
