@@ -997,11 +997,11 @@
       {
         type: 'identify',
         svgKey: 'right',
-        question: 'What is the correct name for this triangle?',
-        options: ['Right-Angled','Isosceles','Equilateral','Scalene'],
+        question: 'What is the correct name for this triangle based on its angles?',
+        options: ['Right-Angled','Isosceles','Equilateral','Isosceles Right-Angled'],
         correct: 'Right-Angled',
         hint: 'Look for the small square in one corner — that marks the right angle!',
-        feedback: 'The small square shows a 90° right angle and all three sides are different — so it\'s a right-angled triangle (but not isosceles).'
+        feedback: 'The small square shows a 90° right angle, so by its angles it\'s a right-angled triangle. (Note: it also has 3 different side lengths, so by its sides it\'s also scalene — but here we\'re classifying by angle!)'
       },
       {
         type: 'identify',
@@ -1114,12 +1114,12 @@
     // Challenge uses simpler single-select + sides questions
     const challengeProblems = [
       { type:'identify', svgKey:'scalene',    question:'Name this triangle:', options:['Right-Angled','Isosceles','Equilateral','Scalene'], correct:'Scalene' },
-      { type:'identify', svgKey:'right',      question:'Name this triangle:', options:['Right-Angled','Isosceles','Equilateral','Scalene'], correct:'Right-Angled' },
+      { type:'identify', svgKey:'right',      question:'Name this triangle based on its angles:', options:['Right-Angled','Isosceles','Equilateral','Isosceles Right-Angled'], correct:'Right-Angled' },
       { type:'identify', svgKey:'equil',      question:'Name this triangle:', options:['Right-Angled','Isosceles','Equilateral','Scalene'], correct:'Equilateral' },
       { type:'identify', svgKey:'iso',        question:'Name this triangle:', options:['Right-Angled','Isosceles','Equilateral','Scalene'], correct:'Isosceles' },
       { type:'identify', svgKey:'iso-right',  question:'Name this triangle:', options:['Right-Angled','Isosceles','Isosceles Right-Angled','Scalene'], correct:'Isosceles Right-Angled' },
       { type:'identify', svgKey:'scalene-b',  question:'Name this triangle:', options:['Right-Angled','Isosceles','Equilateral','Scalene'], correct:'Scalene' },
-      { type:'identify', svgKey:'right-b',    question:'Name this triangle:', options:['Right-Angled','Isosceles','Equilateral','Scalene'], correct:'Right-Angled' },
+      { type:'identify', svgKey:'right-b',    question:'Name this triangle based on its angles:', options:['Right-Angled','Isosceles','Equilateral','Isosceles Right-Angled'], correct:'Right-Angled' },
       { type:'sides', sides:[3,4,5],   question:'Can 3, 4, 5 form a triangle?', correct:true },
       { type:'sides', sides:[1,2,10],  question:'Can 1, 2, 10 form a triangle?', correct:false },
       { type:'sides', sides:[5,6,8],   question:'Can 5, 6, 8 form a triangle?', correct:true },
