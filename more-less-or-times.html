@@ -1292,6 +1292,10 @@
             <div class="label">Score</div>
             <div class="value" id="challenge-score">0</div>
           </div>
+          <div class="stat">
+            <div class="label">Level</div>
+            <div class="value" id="challenge-level">Medium</div>
+          </div>
           <div class="timer" id="challenge-timer">1:30</div>
           <div class="stat">
             <div class="label">Question</div>
@@ -1325,6 +1329,7 @@
         <h2 id="results-title">Great Job!</h2>
         <div class="score" id="results-score"></div>
         <div class="stars" id="results-stars"></div>
+        <div class="next-level" id="results-next-level" style="font-size: 1rem; color: var(--text-secondary); margin-bottom: 20px;"></div>
         <button class="play-again-btn" onclick="showScreen('menu')">Back to Menu</button>
       </div>
     </div>
@@ -1527,6 +1532,103 @@
     let challengeProblems = [];
     let challengeSelectedOp = null;
     let challengeEnded = false;
+
+    // Adaptive difficulty (1-5, starts at 3)
+    const DIFFICULTY_KEY = 'mlt-challenge-difficulty';
+    function getDifficulty() {
+      const d = parseInt(localStorage.getItem(DIFFICULTY_KEY));
+      return (d >= 1 && d <= 5) ? d : 3;
+    }
+    function setDifficulty(level) {
+      localStorage.setItem(DIFFICULTY_KEY, Math.max(1, Math.min(5, level)));
+    }
+
+    const difficultyConfig = {
+      1: { label: 'Starter',     amountMin: 10, amountMax: 25, diffMin: 2, diffMax: 5,  includesTimes: false, multipliers: [],    timer: 120 },
+      2: { label: 'Easy',        amountMin: 15, amountMax: 40, diffMin: 3, diffMax: 10, includesTimes: false, multipliers: [],    timer: 105 },
+      3: { label: 'Medium',      amountMin: 20, amountMax: 60, diffMin: 5, diffMax: 15, includesTimes: true,  multipliers: [2,3], timer: 90  },
+      4: { label: 'Tricky',      amountMin: 30, amountMax: 80, diffMin: 8, diffMax: 20, includesTimes: true,  multipliers: [2,3,4,5], timer: 90 },
+      5: { label: 'Expert',      amountMin: 40, amountMax: 100,diffMin: 10,diffMax: 25, includesTimes: true,  multipliers: [3,4,5,6], timer: 75  },
+    };
+
+    const namePool = [
+      { name: 'Amy', emoji: '👧' }, { name: 'Ben', emoji: '👦' },
+      { name: 'Tom', emoji: '👦' }, { name: 'Lucy', emoji: '👧' },
+      { name: 'Emma', emoji: '👧' }, { name: 'Jack', emoji: '👦' },
+      { name: 'Zara', emoji: '👧' }, { name: 'Sam', emoji: '👦' },
+      { name: 'Max', emoji: '👦' }, { name: 'Lily', emoji: '👧' },
+      { name: 'Leo', emoji: '👦' }, { name: 'Alex', emoji: '👦' },
+      { name: 'Mia', emoji: '👧' }, { name: 'Noah', emoji: '👦' },
+      { name: 'Sophie', emoji: '👧' }, { name: 'Carlos', emoji: '👦' },
+      { name: 'Maya', emoji: '👧' }, { name: 'Jake', emoji: '👦' },
+    ];
+
+    function randInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function generateProblem(type, cfg) {
+      const pair = shuffle(namePool).slice(0, 2);
+      const p1 = { ...pair[0] };
+      const p2 = { ...pair[1] };
+
+      if (type === 'more') {
+        const diff = randInt(cfg.diffMin, cfg.diffMax);
+        p1.amount = randInt(cfg.amountMin + diff, cfg.amountMax);
+        p2.amount = p1.amount - diff;
+        return {
+          text: `${p1.name} has $${p1.amount}. ${p1.name} has $${diff} more than ${p2.name}. How much does ${p2.name} have?`,
+          person1: p1, person2: p2,
+          keyword: 'more', keywordText: `$${diff} more than`,
+          number: diff, operation: '−', whoHasMore: 'person1', answer: p2.amount
+        };
+      } else if (type === 'less') {
+        const diff = randInt(cfg.diffMin, cfg.diffMax);
+        p1.amount = randInt(cfg.amountMin, cfg.amountMax - diff);
+        p2.amount = p1.amount + diff;
+        return {
+          text: `${p1.name} has $${p1.amount}. ${p1.name} has $${diff} less than ${p2.name}. How much does ${p2.name} have?`,
+          person1: p1, person2: p2,
+          keyword: 'less', keywordText: `$${diff} less than`,
+          number: diff, operation: '+', whoHasMore: 'person2', answer: p2.amount
+        };
+      } else {
+        const mult = cfg.multipliers[randInt(0, cfg.multipliers.length - 1)];
+        p2.amount = randInt(Math.max(2, Math.floor(cfg.amountMin / mult)), Math.floor(cfg.amountMax / mult));
+        p1.amount = p2.amount * mult;
+        return {
+          text: `${p1.name} has $${p1.amount}. ${p1.name} has ${mult} times as much money as ${p2.name}. How much does ${p2.name} have?`,
+          person1: p1, person2: p2,
+          keyword: 'times', keywordText: `${mult} times as much`,
+          number: mult, operation: '÷', whoHasMore: 'person1', answer: p2.amount
+        };
+      }
+    }
+
+    function generateChallengeProblems(difficulty) {
+      const cfg = difficultyConfig[difficulty];
+      const types = cfg.includesTimes
+        ? ['more', 'less', 'times']
+        : ['more', 'less'];
+      // Guarantee at least 1 of each available type
+      const guaranteed = types.map(t => generateProblem(t, cfg));
+      const remaining = 5 - guaranteed.length;
+      const extra = [];
+      for (let i = 0; i < remaining; i++) {
+        extra.push(generateProblem(types[randInt(0, types.length - 1)], cfg));
+      }
+      return shuffle([...guaranteed, ...extra]);
+    }
+
+    function adjustDifficulty(correct) {
+      const current = getDifficulty();
+      let next = current;
+      if (correct <= 1) next = current - 2;
+      else if (correct === 2) next = current - 1;
+      else if (correct >= 4) next = current + 1;
+      // correct === 3 → stay same
+      setDifficulty(next);
+    }
 
     // Screen management
     function showScreen(screen) {
@@ -1748,21 +1850,22 @@
       challengeScore = 0;
       challengeCorrect = 0;
       challengeQuestion = 0;
-      challengeTimer = 90;
       challengeSelectedOp = null;
       challengeEnded = false;
 
-      // Pick at least 1 from each keyword type, then fill remaining slots randomly
-      const byType = {};
-      problems.forEach(p => { (byType[p.keyword] = byType[p.keyword] || []).push(p); });
-      const guaranteed = Object.values(byType).map(group => shuffle([...group])[0]);
-      const rest = shuffle(problems.filter(p => !guaranteed.includes(p)));
-      challengeProblems = shuffle([...guaranteed, ...rest].slice(0, 5));
+      const difficulty = getDifficulty();
+      const cfg = difficultyConfig[difficulty];
+      challengeTimer = cfg.timer;
+      challengeProblems = generateChallengeProblems(difficulty);
 
       document.getElementById('challenge-score').textContent = '0';
       document.getElementById('challenge-question').textContent = '1/5';
       document.getElementById('challenge-timer').classList.remove('warning');
       document.getElementById('challenge-feedback').style.display = 'none';
+
+      // Show difficulty level
+      const levelEl = document.getElementById('challenge-level');
+      if (levelEl) levelEl.textContent = cfg.label;
 
       loadChallengeProblem();
       startChallengeTimer();
@@ -1876,6 +1979,8 @@
       }
       // Hide any lingering feedback
       document.getElementById('challenge-feedback').style.display = 'none';
+      // Adjust difficulty for next time
+      adjustDifficulty(challengeCorrect);
       showResults(challengeCorrect, 5, true);
     }
 
@@ -1904,6 +2009,16 @@
         ? `${score} out of ${maxScore} correct (${pct}%)`
         : `Completed ${score} problems!`;
       document.getElementById('results-stars').textContent = stars;
+
+      // Show next difficulty info for challenge mode
+      const nextLevelEl = document.getElementById('results-next-level');
+      if (isChallenge) {
+        const nextDiff = getDifficulty();
+        const nextCfg = difficultyConfig[nextDiff];
+        nextLevelEl.textContent = `Next challenge: ${nextCfg.label} level`;
+      } else {
+        nextLevelEl.textContent = '';
+      }
 
       showScreen('results');
     }
