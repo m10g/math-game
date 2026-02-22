@@ -1519,6 +1519,7 @@
 
     // Challenge state
     let challengeScore = 0;
+    let challengeCorrect = 0;
     let challengeQuestion = 0;
     let challengeTimer = 90;
     let challengeInterval = null;
@@ -1734,11 +1735,18 @@
     // Challenge mode
     function startChallenge() {
       challengeScore = 0;
+      challengeCorrect = 0;
       challengeQuestion = 0;
       challengeTimer = 90;
       challengeSelectedOp = null;
       challengeEnded = false;
-      challengeProblems = [...problems].sort(() => Math.random() - 0.5).slice(0, 5);
+
+      // Pick at least 1 from each keyword type, then fill remaining slots randomly
+      const byType = {};
+      problems.forEach(p => { (byType[p.keyword] = byType[p.keyword] || []).push(p); });
+      const guaranteed = Object.values(byType).map(group => shuffle([...group])[0]);
+      const rest = shuffle(problems.filter(p => !guaranteed.includes(p)));
+      challengeProblems = shuffle([...guaranteed, ...rest].slice(0, 5));
 
       document.getElementById('challenge-score').textContent = '0';
       document.getElementById('challenge-question').textContent = '1/5';
@@ -1789,8 +1797,8 @@
       const isCorrect = challengeSelectedOp === currentProblem.operation && userAnswer === currentProblem.answer;
 
       if (isCorrect) {
-        challengeScore += 10;
-        document.getElementById('challenge-score').textContent = challengeScore;
+        challengeCorrect++;
+        document.getElementById('challenge-score').textContent = challengeCorrect;
       }
 
       // Show feedback banner
@@ -1857,7 +1865,7 @@
       }
       // Hide any lingering feedback
       document.getElementById('challenge-feedback').style.display = 'none';
-      showResults(challengeScore, 100, true);
+      showResults(challengeCorrect, 5, true);
     }
 
     function showResults(score, maxScore, isChallenge) {
@@ -1880,8 +1888,8 @@
       }
 
       document.getElementById('results-title').textContent = title;
-      document.getElementById('results-score').textContent = isChallenge 
-        ? `Score: ${score} points`
+      document.getElementById('results-score').textContent = isChallenge
+        ? `${score} out of ${maxScore} correct`
         : `Completed ${score} problems!`;
       document.getElementById('results-stars').textContent = stars;
 
