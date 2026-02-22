@@ -1330,7 +1330,8 @@
     </div>
   </div>
 
-  <footer class="app-footer">v1.1.2</footer>
+  <footer class="app-footer"></footer>
+  <script src="version.js"></script>
 
   <script>
     // Problem database
@@ -1898,8 +1899,9 @@
       }
 
       document.getElementById('results-title').textContent = title;
+      const pct = Math.round((score / maxScore) * 100);
       document.getElementById('results-score').textContent = isChallenge
-        ? `${score} out of ${maxScore} correct`
+        ? `${score} out of ${maxScore} correct (${pct}%)`
         : `Completed ${score} problems!`;
       document.getElementById('results-stars').textContent = stars;
 
