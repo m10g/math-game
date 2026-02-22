@@ -603,6 +603,7 @@
 
     <!-- ═══ MENU SCREEN ═══ -->
     <div id="menu-screen" class="screen active">
+      <button class="back-btn" onclick="window.location.href='index.html'">← All Topics</button>
       <div class="menu-grid">
         <button class="menu-btn learn" onclick="showScreen('learn')">
           <div class="icon">💡</div>
@@ -1482,7 +1483,7 @@
       document.getElementById('results-stars').textContent = stars;
 
       if (isChallenge) {
-        document.getElementById('results-score').textContent = `You scored ${score} out of 100`;
+        document.getElementById('results-score').textContent = `You scored ${score} out of 100 (${score}%)`;
       } else {
         document.getElementById('results-score').textContent = `You completed all ${total} questions!`;
       }
@@ -1501,6 +1502,7 @@
     }
   </script>
 
-  <footer class="app-footer">v1.1.1</footer>
+  <footer class="app-footer"></footer>
+  <script src="version.js"></script>
 </body>
 </html>
