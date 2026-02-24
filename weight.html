@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weight Explorer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --units-color: #4ECDC4;
+      --convert-color: #FFB347;
+      --balance-color: #95E879;
+      --scale-color: #C084FC;
+      --compare-color: #FF6B6B;
+      --tools-color: #6366F1;
+      --bg-gradient-1: #F0FFF4;
+      --bg-gradient-2: #E6FFED;
+      --card-bg: #FFFFFF;
+      --text-primary: #2D3436;
+      --text-secondary: #636E72;
+      --success: #6BCB77;
+      --error: #FF6B6B;
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(135deg, var(--bg-gradient-1) 0%, var(--bg-gradient-2) 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Floating decorations */
+    .decoration {
+      position: fixed;
+      pointer-events: none;
+      opacity: 0.5;
+      z-index: 0;
+    }
+    .decoration.w1 { top: 8%; left: 4%; animation: float 4s ease-in-out infinite; font-size: 36px; }
+    .decoration.w2 { top: 25%; right: 6%; animation: float 5s ease-in-out infinite 0.5s; font-size: 32px; }
+    .decoration.w3 { bottom: 18%; left: 8%; animation: float 4.5s ease-in-out infinite 1s; font-size: 34px; }
+    .decoration.star1 { top: 14%; right: 14%; animation: twinkle 2s ease-in-out infinite; font-size: 28px; }
+    .decoration.star2 { bottom: 28%; right: 4%; animation: twinkle 2.5s ease-in-out infinite 0.3s; font-size: 24px; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-18px) rotate(8deg); }
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes bounceIn {
+      0% { transform: scale(0.5); opacity: 0; }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes popIn {
+      from { transform: scale(0); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .container {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .header {
+      text-align: center;
+      padding: 28px 0;
+    }
+    .header h1 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 2.6rem;
+      color: var(--text-primary);
+      text-shadow: 3px 3px 0 #86EFAC;
+      margin-bottom: 8px;
+    }
+    .header p {
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+      font-weight: 600;
+    }
+
+    .screen { display: none; animation: fadeIn 0.5s ease; }
+    .screen.active { display: block; }
+
+    /* Menu */
+    .menu-grid { display: grid; gap: 18px; margin-top: 28px; }
+    .menu-btn {
+      background: var(--card-bg);
+      border: none;
+      border-radius: 24px;
+      padding: 28px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      text-align: left;
+    }
+    .menu-btn:hover { transform: translateY(-5px); box-shadow: var(--shadow-hover); }
+    .menu-btn .icon {
+      font-size: 2.6rem;
+      width: 78px;
+      height: 78px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 20px;
+      flex-shrink: 0;
+    }
+    .menu-btn.learn .icon { background: linear-gradient(135deg, #FFE66D, #FFD93D); }
+    .menu-btn.practice .icon { background: linear-gradient(135deg, #74EBD5, #4ECDC4); }
+    .menu-btn.challenge .icon { background: linear-gradient(135deg, #F093FB, #C084FC); }
+    .menu-btn .text h3 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.45rem;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .menu-btn .text p { color: var(--text-secondary); font-size: 0.92rem; }
+
+    /* Cards */
+    .card {
+      background: var(--card-bg);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+    .card-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.35rem;
+      color: var(--text-primary);
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .back-btn {
+      background: none;
+      border: none;
+      font-size: 1.05rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 18px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 600;
+      transition: color 0.3s;
+    }
+    .back-btn:hover { color: var(--text-primary); }
+
+    /* Learn tabs */
+    .lesson-nav {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+    }
+    .lesson-tab {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 30px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      background: #F0F0F0;
+      color: var(--text-secondary);
+    }
+    .lesson-tab.active { color: white; }
+    .lesson-tab.units.active    { background: var(--units-color); }
+    .lesson-tab.convert.active  { background: var(--convert-color); color: #2D3436; }
+    .lesson-tab.balance.active  { background: var(--balance-color); color: #2D3436; }
+    .lesson-tab.scale.active    { background: var(--scale-color); }
+    .lesson-tab.compare.active  { background: var(--compare-color); }
+    .lesson-tab.tools.active    { background: var(--tools-color); }
+
+    .lesson-content { display: none; }
+    .lesson-content.active { display: block; animation: fadeIn 0.4s ease; }
+
+    .type-badge {
+      display: inline-block;
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-weight: 800;
+      font-size: 0.9rem;
+      margin-bottom: 14px;
+      color: white;
+    }
+    .type-badge.units    { background: var(--units-color); }
+    .type-badge.convert  { background: var(--convert-color); color: #2D3436; }
+    .type-badge.balance  { background: var(--balance-color); color: #2D3436; }
+    .type-badge.scale    { background: var(--scale-color); }
+    .type-badge.compare  { background: var(--compare-color); }
+    .type-badge.tools    { background: var(--tools-color); }
+
+    .property-list {
+      list-style: none;
+      margin: 14px 0;
+    }
+    .property-list li {
+      padding: 9px 14px;
+      margin-bottom: 8px;
+      background: #F8F9FA;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .property-list li::before {
+      content: "\25B8";
+      color: #16A34A;
+      flex-shrink: 0;
+    }
+
+    .tip-box {
+      background: linear-gradient(135deg, #FFF3CD, #FFE69C);
+      border-radius: 16px;
+      padding: 18px;
+      margin-top: 16px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+    .tip-box .icon { font-size: 1.8rem; flex-shrink: 0; }
+    .tip-box .text { font-weight: 600; line-height: 1.6; font-size: 0.95rem; }
+
+    /* Visual examples */
+    .example-box {
+      background: #F8FAFC;
+      border-radius: 16px;
+      padding: 22px;
+      margin-bottom: 18px;
+    }
+
+    .conversion-box {
+      background: linear-gradient(135deg, #FFF7ED, #FFEDD5);
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+      margin: 16px 0;
+    }
+    .conversion-box .big-formula {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.6rem;
+      color: var(--text-primary);
+      margin: 10px 0;
+    }
+    .conversion-box .small-text {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+    }
+
+    .step-box {
+      background: #F0FDF4;
+      border-radius: 12px;
+      padding: 16px;
+      margin: 12px 0;
+      border-left: 4px solid var(--success);
+    }
+    .step-box .step-label {
+      font-weight: 800;
+      color: var(--success);
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+    }
+    .step-box .step-formula {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.2rem;
+      color: var(--text-primary);
+    }
+
+    /* Balance scale SVG styles */
+    .balance-display {
+      display: flex;
+      justify-content: center;
+      margin: 18px 0;
+    }
+    .balance-display svg {
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.12));
+    }
+
+    /* Dial scale SVG styles */
+    .scale-display {
+      display: flex;
+      justify-content: center;
+      margin: 18px 0;
+    }
+    .scale-display svg {
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.12));
+    }
+
+    /* Weight comparison layout */
+    .weight-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin: 12px 0;
+    }
+    .weight-item {
+      text-align: center;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+    .weight-item .emoji { font-size: 2.5rem; display: block; margin-bottom: 6px; }
+    .weight-item .label { font-size: 0.85rem; color: var(--text-secondary); }
+
+    /* Tools grid */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin: 16px 0;
+    }
+    .tool-card {
+      background: #F8F9FA;
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+    }
+    .tool-card .tool-emoji { font-size: 2.4rem; display: block; margin-bottom: 8px; }
+    .tool-card .tool-name { font-weight: 800; font-size: 0.95rem; color: var(--text-primary); margin-bottom: 4px; }
+    .tool-card .tool-desc { font-weight: 600; font-size: 0.82rem; color: var(--text-secondary); line-height: 1.4; }
+
+    /* Practice & Challenge - placeholder styling */
+    .progress-bar {
+      height: 8px;
+      background: #F0F0F0;
+      border-radius: 10px;
+      margin-bottom: 22px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #4ECDC4, #6BCB77);
+      border-radius: 10px;
+      transition: width 0.4s ease;
+    }
+
+    .stats-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 22px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #F0F0F0;
+    }
+    .stats-bar .stat { text-align: center; }
+    .stats-bar .stat .label { font-size: 0.8rem; color: var(--text-secondary); font-weight: 700; }
+    .stats-bar .stat .value { font-family: 'Fredoka One', cursive; font-size: 1.3rem; color: var(--text-primary); }
+    .stats-bar .timer {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.6rem;
+      color: var(--text-primary);
+      background: #F0F0F0;
+      padding: 8px 20px;
+      border-radius: 16px;
+    }
+
+    .question-text {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 18px;
+      line-height: 1.6;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .option-btn {
+      background: #F8F9FA;
+      border: 3px solid transparent;
+      border-radius: 16px;
+      padding: 14px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .option-btn:hover { border-color: #CBD5E1; }
+    .option-btn.selected { border-color: var(--scale-color); background: #F5F3FF; }
+    .option-btn.correct { border-color: var(--success); background: #F0FDF4; }
+    .option-btn.wrong { border-color: var(--error); background: #FEF2F2; }
+
+    .submit-btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #4ECDC4, #6BCB77);
+      color: white;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 1.05rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 12px;
+    }
+    .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .submit-btn:not(:disabled):hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+
+    .answer-input {
+      display: block;
+      width: 100%;
+      max-width: 200px;
+      margin: 12px auto;
+      padding: 12px 16px;
+      border: 3px solid #E2E8F0;
+      border-radius: 14px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 1.2rem;
+      text-align: center;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    .answer-input:focus { border-color: var(--units-color); }
+
+    .hint-btn {
+      display: block;
+      margin: 12px auto 0;
+      background: none;
+      border: none;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+    .hint-btn:hover { color: var(--text-primary); }
+
+    .hint-text {
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-top: 8px;
+      min-height: 20px;
+    }
+
+    .feedback {
+      display: none;
+      text-align: center;
+      padding: 20px;
+      border-radius: 16px;
+      margin-top: 16px;
+    }
+    .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+    .feedback.correct { background: #F0FDF4; }
+    .feedback.wrong { background: #FEF2F2; }
+    .feedback .fb-icon { font-size: 2rem; margin-bottom: 8px; }
+    .feedback .fb-message { font-weight: 800; font-size: 1.1rem; margin-bottom: 6px; }
+    .feedback .fb-detail { font-weight: 600; font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5; }
+
+    .next-btn {
+      display: inline-block;
+      margin-top: 14px;
+      padding: 10px 28px;
+      border: none;
+      border-radius: 30px;
+      background: linear-gradient(135deg, #4ECDC4, #6BCB77);
+      color: white;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .next-btn:hover { transform: translateY(-2px); }
+
+    /* Results */
+    .results { text-align: center; padding: 40px 28px; }
+    .results .trophy { font-size: 4rem; margin-bottom: 16px; animation: bounceIn 0.6s ease; }
+    .results h2 { font-family: 'Fredoka One', cursive; font-size: 1.8rem; color: var(--text-primary); margin-bottom: 12px; }
+    .results .score { font-weight: 700; font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 14px; }
+    .results .stars { font-size: 2rem; margin-bottom: 20px; }
+    .play-again-btn {
+      padding: 14px 32px;
+      border: none;
+      border-radius: 30px;
+      background: linear-gradient(135deg, #4ECDC4, #6BCB77);
+      color: white;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 1.05rem;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .play-again-btn:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .header h1 { font-size: 2rem; }
+      .menu-btn { padding: 20px; }
+      .menu-btn .icon { width: 60px; height: 60px; font-size: 2rem; }
+      .lesson-tab { padding: 8px 12px; font-size: 0.82rem; }
+      .tools-grid { grid-template-columns: 1fr; }
+      .options-grid { grid-template-columns: 1fr; }
+      .conversion-box .big-formula { font-size: 1.3rem; }
+    }
+
+    .app-footer {
+      text-align: center;
+      padding: 24px 16px 16px;
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body>
+  <!-- Floating decorations -->
+  <div class="decoration w1">&#9878;</div>
+  <div class="decoration w2">&#9878;</div>
+  <div class="decoration w3">&#9878;</div>
+  <div class="decoration star1">&#11088;</div>
+  <div class="decoration star2">&#10024;</div>
+
+  <div class="container">
+    <header class="header">
+      <h1>Weight Explorer &#9878;</h1>
+      <p>Learn to measure and compare weights!</p>
+    </header>
+
+    <!-- MENU SCREEN -->
+    <div id="menu-screen" class="screen active">
+      <button class="back-btn" onclick="window.location.href='index.html'">&larr; All Topics</button>
+      <div class="menu-grid">
+        <button class="menu-btn learn" onclick="showScreen('learn')">
+          <div class="icon">&#128161;</div>
+          <div class="text">
+            <h3>Learn</h3>
+            <p>Discover units of weight, read scales, and compare objects</p>
+          </div>
+        </button>
+        <button class="menu-btn practice" onclick="showScreen('practice')">
+          <div class="icon">&#9999;&#65039;</div>
+          <div class="text">
+            <h3>Practice</h3>
+            <p>Try problems step by step with hints</p>
+          </div>
+        </button>
+        <button class="menu-btn challenge" onclick="showScreen('challenge')">
+          <div class="icon">&#127942;</div>
+          <div class="text">
+            <h3>Challenge</h3>
+            <p>Test your skills and earn stars!</p>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- LEARN SCREEN -->
+    <div id="learn-screen" class="screen">
+      <button class="back-btn" onclick="showScreen('menu')">&larr; Back to Menu</button>
+      <div class="card">
+        <div class="card-title">&#9878; Understanding Weight</div>
+
+        <div class="lesson-nav">
+          <button class="lesson-tab units active" onclick="showLesson('units')">Units (kg &amp; g)</button>
+          <button class="lesson-tab convert" onclick="showLesson('convert')">Converting</button>
+          <button class="lesson-tab balance" onclick="showLesson('balance')">Balance Scales</button>
+          <button class="lesson-tab scale" onclick="showLesson('scale')">Reading Scales</button>
+          <button class="lesson-tab compare" onclick="showLesson('compare')">Comparing</button>
+          <button class="lesson-tab tools" onclick="showLesson('tools')">Measuring Tools</button>
+        </div>
+
+        <!-- Units of Weight -->
+        <div id="lesson-units" class="lesson-content active">
+          <span class="type-badge units">Units of Weight</span>
+          <p style="font-weight:600; margin-bottom:16px; color:var(--text-secondary); line-height:1.6;">
+            We measure how heavy things are using <strong>units of weight</strong>. The two most common units are:
+          </p>
+
+          <div class="weight-row">
+            <div class="weight-item">
+              <span class="emoji">&#127790;</span>
+              <div><strong>Grams (g)</strong></div>
+              <div class="label">For light things</div>
+            </div>
+            <div style="font-size:2rem; font-weight:800; color:var(--text-secondary);">and</div>
+            <div class="weight-item">
+              <span class="emoji">&#127834;</span>
+              <div><strong>Kilograms (kg)</strong></div>
+              <div class="label">For heavy things</div>
+            </div>
+          </div>
+
+          <div class="example-box">
+            <p style="font-weight:700; margin-bottom:12px;">Examples of things measured in grams (g):</p>
+            <div class="weight-row">
+              <div class="weight-item"><span class="emoji">&#127823;</span> An apple<br><strong>about 200 g</strong></div>
+              <div class="weight-item"><span class="emoji">&#127936;</span> A basketball<br><strong>about 600 g</strong></div>
+              <div class="weight-item"><span class="emoji">&#128241;</span> A mobile phone<br><strong>about 200 g</strong></div>
+            </div>
+          </div>
+
+          <div class="example-box">
+            <p style="font-weight:700; margin-bottom:12px;">Examples of things measured in kilograms (kg):</p>
+            <div class="weight-row">
+              <div class="weight-item"><span class="emoji">&#129361;</span> A bag of rice<br><strong>about 5 kg</strong></div>
+              <div class="weight-item"><span class="emoji">&#128187;</span> A refrigerator<br><strong>about 100 kg</strong></div>
+              <div class="weight-item"><span class="emoji">&#128690;</span> A bicycle<br><strong>about 15 kg</strong></div>
+            </div>
+          </div>
+
+          <div class="tip-box">
+            <div class="icon">&#128161;</div>
+            <div class="text">
+              <strong>Quick rule:</strong> If you can hold it easily with one hand, it's probably measured in <strong>grams</strong>. If it feels heavy or needs both hands, it's probably measured in <strong>kilograms</strong>.
+            </div>
+          </div>
+        </div>
+
+        <!-- Unit Conversion -->
+        <div id="lesson-convert" class="lesson-content">
+          <span class="type-badge convert">Unit Conversion</span>
+          <p style="font-weight:600; margin-bottom:16px; color:var(--text-secondary); line-height:1.6;">
+            Kilograms and grams are related. Knowing how to convert between them is an important skill!
+          </p>
+
+          <div class="conversion-box">
+            <div class="small-text">The key rule to remember:</div>
+            <div class="big-formula">1 kg = 1000 g</div>
+            <div class="small-text">One kilogram equals one thousand grams</div>
+          </div>
+
+          <p style="font-weight:700; margin:18px 0 10px;">Example 1: Simple conversion</p>
+          <div class="step-box">
+            <div class="step-label">Convert 2 kg to grams</div>
+            <div class="step-formula">2 kg = 2 &times; 1000 = <strong>2000 g</strong></div>
+          </div>
+
+          <p style="font-weight:700; margin:18px 0 10px;">Example 2: Mixed units</p>
+          <div class="step-box">
+            <div class="step-label">Convert 4 kg 50 g to grams</div>
+            <div class="step-formula">
+              Step 1: 4 kg = 4 &times; 1000 = 4000 g<br>
+              Step 2: 4000 g + 50 g = <strong>4050 g</strong>
+            </div>
+          </div>
+
+          <p style="font-weight:700; margin:18px 0 10px;">Example 3: Tricky mixed units</p>
+          <div class="step-box">
+            <div class="step-label">Convert 20 kg 20 g to grams</div>
+            <div class="step-formula">
+              Step 1: 20 kg = 20 &times; 1000 = 20000 g<br>
+              Step 2: 20000 g + 20 g = <strong>20020 g</strong>
+            </div>
+          </div>
+
+          <div class="tip-box">
+            <div class="icon">&#128161;</div>
+            <div class="text">
+              <strong>Method:</strong> To convert <em>X</em> kg <em>Y</em> g to grams, first multiply the kg part by 1000, then add the grams part.<br>
+              <strong>Formula: (X &times; 1000) + Y = total grams</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Balance Scales -->
+        <div id="lesson-balance" class="lesson-content">
+          <span class="type-badge balance">Balance Scales</span>
+          <p style="font-weight:600; margin-bottom:16px; color:var(--text-secondary); line-height:1.6;">
+            A balance scale compares the weight of objects. The heavier side goes <strong>down</strong> and the lighter side goes <strong>up</strong>.
+          </p>
+
+          <div class="balance-display" id="svg-balance-intro"></div>
+
+          <ul class="property-list">
+            <li>If the left pan is <strong>lower</strong>, the left object is <strong>heavier</strong></li>
+            <li>If the right pan is <strong>lower</strong>, the right object is <strong>heavier</strong></li>
+            <li>If both pans are <strong>level</strong>, both objects weigh the <strong>same</strong></li>
+          </ul>
+
+          <div class="example-box">
+            <p style="font-weight:700; margin-bottom:12px;">Comparing three objects using two weighings:</p>
+            <div class="balance-display" id="svg-balance-ex1"></div>
+            <p style="font-weight:600; text-align:center; margin:8px 0;">C is heavier than A &nbsp; (C &gt; A)</p>
+            <div class="balance-display" id="svg-balance-ex2"></div>
+            <p style="font-weight:600; text-align:center; margin:8px 0;">A is heavier than B &nbsp; (A &gt; B)</p>
+            <div class="step-box">
+              <div class="step-label">Putting it together:</div>
+              <div class="step-formula">C &gt; A &gt; B &nbsp;&nbsp; (Heaviest to lightest: C, A, B)</div>
+            </div>
+          </div>
+
+          <div class="example-box" style="margin-top:16px;">
+            <p style="font-weight:700; margin-bottom:12px;">Using a balance scale with standard weights:</p>
+            <div class="balance-display" id="svg-balance-standard"></div>
+            <p style="font-weight:600; text-align:center; margin:8px 0;">
+              When the scale is balanced, the object on the left weighs the same as the total of the standard weights on the right.
+            </p>
+            <div class="step-box">
+              <div class="step-label">Example: 3 drumsticks balanced with 1 kg + 200 g + 200 g</div>
+              <div class="step-formula">Total = 1000 g + 200 g + 200 g = <strong>1400 g</strong></div>
+            </div>
+          </div>
+
+          <div class="tip-box">
+            <div class="icon">&#128161;</div>
+            <div class="text">
+              <strong>Logic puzzles:</strong> If shapes are balanced against small circles, you can use the circles as a "common unit" to compare the shapes. For example, if a dome = 5 circles and a triangle = 8 circles, then the triangle is heavier than the dome!
+            </div>
+          </div>
+        </div>
+
+        <!-- Reading Dial Scales -->
+        <div id="lesson-scale" class="lesson-content">
+          <span class="type-badge scale">Reading Dial Scales</span>
+          <p style="font-weight:600; margin-bottom:16px; color:var(--text-secondary); line-height:1.6;">
+            Dial scales (also called weighing scales) have a needle that points to the weight. You need to read the markings carefully!
+          </p>
+
+          <div class="example-box">
+            <p style="font-weight:700; margin-bottom:12px;">Step 1: Check the unit on the scale</p>
+            <ul class="property-list">
+              <li>Some scales show <strong>kg</strong> (kilograms)</li>
+              <li>Some scales show <strong>g</strong> (grams)</li>
+              <li>If the question asks for grams but the scale shows kg, you must <strong>convert</strong>!</li>
+            </ul>
+          </div>
+
+          <div class="example-box">
+            <p style="font-weight:700; margin-bottom:12px;">Step 2: Work out what each small mark is worth</p>
+            <ul class="property-list">
+              <li>Find two numbers you can read on the scale</li>
+              <li>Count the small marks (intervals) between them</li>
+              <li>Divide the difference by the number of intervals</li>
+            </ul>
+            <div class="step-box">
+              <div class="step-label">Example: Numbers 0 and 1 kg, with 10 intervals between them</div>
+              <div class="step-formula">Each small mark = 1 kg &divide; 10 = 0.1 kg = <strong>100 g</strong></div>
+            </div>
+            <div class="step-box">
+              <div class="step-label">Example: Numbers 0 and 200 g, with 4 intervals between them</div>
+              <div class="step-formula">Each small mark = 200 g &divide; 4 = <strong>50 g</strong></div>
+            </div>
+          </div>
+
+          <div class="example-box">
+            <p style="font-weight:700; margin-bottom:12px;">Step 3: Read the needle position</p>
+            <div class="step-box">
+              <div class="step-label">Example A: Needle at 4th mark after 0 (each mark = 100 g)</div>
+              <div class="step-formula">Weight = 4 &times; 100 g = <strong>400 g</strong></div>
+            </div>
+            <div class="step-box">
+              <div class="step-label">Example B: Needle at 1st mark before 2 kg (each mark = 0.2 kg)</div>
+              <div class="step-formula">Weight = 2 &minus; 0.2 = 1.8 kg = <strong>1800 g</strong></div>
+            </div>
+            <div class="step-box">
+              <div class="step-label">Example C: Needle at the 800 mark on a gram scale</div>
+              <div class="step-formula">Weight = <strong>800 g</strong></div>
+            </div>
+          </div>
+
+          <div class="tip-box">
+            <div class="icon">&#128161;</div>
+            <div class="text">
+              <strong>Always check three things:</strong><br>
+              1. What <strong>unit</strong> is the scale in? (kg or g)<br>
+              2. What is each <strong>small mark</strong> worth?<br>
+              3. Where is the <strong>needle</strong> pointing?
+            </div>
+          </div>
+        </div>
+
+        <!-- Comparing Weights -->
+        <div id="lesson-compare" class="lesson-content">
+          <span class="type-badge compare">Comparing Weights</span>
+          <p style="font-weight:600; margin-bottom:16px; color:var(--text-secondary); line-height:1.6;">
+            Sometimes you need to read two different scales and compare the weights. Make sure both weights are in the <strong>same unit</strong> first!
+          </p>
+
+          <div class="example-box">
+            <p style="font-weight:700; margin-bottom:12px;">Example: Comparing a rice cooker and grapes</p>
+            <div class="weight-row">
+              <div class="weight-item">
+                <span class="emoji">&#127834;</span>
+                <div>Rice cooker</div>
+                <div><strong>4 kg = 4000 g</strong></div>
+              </div>
+              <div style="font-size:1.5rem; font-weight:800;">vs</div>
+              <div class="weight-item">
+                <span class="emoji">&#127815;</span>
+                <div>Grapes</div>
+                <div><strong>300 g</strong></div>
+              </div>
+            </div>
+
+            <div class="step-box">
+              <div class="step-label">Step 1: Convert to the same unit</div>
+              <div class="step-formula">Rice cooker: 4 kg = 4000 g &nbsp;&nbsp;|&nbsp;&nbsp; Grapes: 300 g</div>
+            </div>
+            <div class="step-box">
+              <div class="step-label">Step 2: Find the difference</div>
+              <div class="step-formula">4000 g &minus; 300 g = <strong>3700 g</strong></div>
+            </div>
+            <div class="step-box">
+              <div class="step-label">Step 3: Write the answer</div>
+              <div class="step-formula">The grapes are <strong>3700 g lighter</strong> than the rice cooker.</div>
+            </div>
+          </div>
+
+          <div class="tip-box">
+            <div class="icon">&#128161;</div>
+            <div class="text">
+              <strong>Remember:</strong> When comparing weights, always convert to the <strong>same unit</strong> first (usually grams). Then subtract the smaller from the larger to find the difference. The lighter object weighs less, the heavier object weighs more!
+            </div>
+          </div>
+        </div>
+
+        <!-- Choosing Measuring Tools -->
+        <div id="lesson-tools" class="lesson-content">
+          <span class="type-badge tools">Measuring Tools</span>
+          <p style="font-weight:600; margin-bottom:16px; color:var(--text-secondary); line-height:1.6;">
+            Different objects need different measuring tools. Choosing the right tool depends on <strong>what you're measuring</strong> and <strong>how heavy it is</strong>.
+          </p>
+
+          <div class="tools-grid">
+            <div class="tool-card">
+              <span class="tool-emoji">&#9878;</span>
+              <div class="tool-name">Kitchen Scale</div>
+              <div class="tool-desc">Best for food, light items<br><strong>Up to about 5 kg</strong></div>
+            </div>
+            <div class="tool-card">
+              <span class="tool-emoji">&#128207;</span>
+              <div class="tool-name">Balance / Slider Scale</div>
+              <div class="tool-desc">Best for small, precise items<br><strong>Up to about 1 kg</strong></div>
+            </div>
+            <div class="tool-card">
+              <span class="tool-emoji">&#128738;</span>
+              <div class="tool-name">Bathroom Scale</div>
+              <div class="tool-desc">Best for people, very heavy items<br><strong>Up to about 150 kg</strong></div>
+            </div>
+            <div class="tool-card">
+              <span class="tool-emoji">&#128207;</span>
+              <div class="tool-name">Large Dial Scale</div>
+              <div class="tool-desc">Best for medium items<br><strong>Up to about 18 kg</strong></div>
+            </div>
+          </div>
+
+          <div class="example-box">
+            <p style="font-weight:700; margin-bottom:12px;">How to choose the right tool:</p>
+            <ul class="property-list">
+              <li><strong>Think about what you're measuring</strong> &mdash; weight needs a <em>scale</em>, not a ruler or syringe!</li>
+              <li><strong>Estimate the object's weight</strong> &mdash; is it very light, medium, or heavy?</li>
+              <li><strong>Match the range</strong> &mdash; the scale should be able to measure the object without being too big or too small</li>
+            </ul>
+          </div>
+
+          <div class="example-box" style="margin-top: 14px;">
+            <p style="font-weight:700; margin-bottom:8px;">Quick guide:</p>
+            <ul class="property-list">
+              <li>A <strong>mobile phone</strong> (~200 g) &rarr; balance/slider scale (up to 1 kg) is best</li>
+              <li>A <strong>game console</strong> (~300 g) &rarr; kitchen scale is a good fit</li>
+              <li>A <strong>bag of rice</strong> (~5 kg) &rarr; kitchen or large dial scale</li>
+              <li>A <strong>person</strong> (~40 kg) &rarr; bathroom floor scale</li>
+            </ul>
+          </div>
+
+          <div class="tip-box">
+            <div class="icon">&#128161;</div>
+            <div class="text">
+              <strong>Elimination trick:</strong> First, cross out anything that doesn't measure weight (rulers, syringes, measuring tapes). Then pick the scale with the range that best fits the object!
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PRACTICE SCREEN (placeholder for Batch 2) -->
+    <div id="practice-screen" class="screen">
+      <button class="back-btn" onclick="showScreen('menu')">&larr; Back to Menu</button>
+      <div class="card">
+        <div class="progress-bar">
+          <div class="progress-fill" id="practice-progress" style="width:0%"></div>
+        </div>
+        <div id="practice-question-area"></div>
+      </div>
+    </div>
+
+    <!-- CHALLENGE SCREEN (placeholder for Batch 3) -->
+    <div id="challenge-screen" class="screen">
+      <button class="back-btn" onclick="endChallenge()">&larr; End Challenge</button>
+      <div class="card">
+        <div class="stats-bar">
+          <div class="stat">
+            <div class="label">Score</div>
+            <div class="value" id="ch-score">0</div>
+          </div>
+          <div class="timer" id="ch-timer">1:30</div>
+          <div class="stat">
+            <div class="label">Question</div>
+            <div class="value" id="ch-qnum">1/10</div>
+          </div>
+        </div>
+        <div id="challenge-question-area"></div>
+      </div>
+    </div>
+
+    <!-- RESULTS SCREEN -->
+    <div id="results-screen" class="screen">
+      <div class="card results">
+        <div class="trophy" id="results-trophy">&#127942;</div>
+        <h2 id="results-title">Great Job!</h2>
+        <div class="score" id="results-score"></div>
+        <div class="stars" id="results-stars"></div>
+        <button class="play-again-btn" onclick="showScreen('menu')">Back to Menu</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="app-footer"></footer>
+  <script src="version.js"></script>
+
+  <script>
+    // ═══════════════════════════════════════════
+    //   STATE
+    // ═══════════════════════════════════════════
+
+    let practiceQueue = [];
+    let practiceIdx = 0;
+
+    let chScore = 0;
+    let chIdx = 0;
+    let chTimer = 90;
+    let chInterval = null;
+    let chQueue = [];
+    let chAnswered = false;
+
+    // ═══════════════════════════════════════════
+    //   SCREEN MANAGEMENT
+    // ═══════════════════════════════════════════
+
+    function showScreen(name) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(name + '-screen').classList.add('active');
+
+      if (name === 'learn') renderLearnVisuals();
+      if (name === 'practice') startPractice();
+      if (name === 'challenge') startChallenge();
+      if (name === 'menu' && chInterval) { clearInterval(chInterval); chInterval = null; }
+    }
+
+    function showLesson(tab) {
+      document.querySelectorAll('.lesson-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.lesson-content').forEach(c => c.classList.remove('active'));
+      document.querySelector('.lesson-tab.' + tab).classList.add('active');
+      document.getElementById('lesson-' + tab).classList.add('active');
+    }
+
+    // ═══════════════════════════════════════════
+    //   LEARN — SVG VISUALS
+    // ═══════════════════════════════════════════
+
+    function renderLearnVisuals() {
+      renderBalanceSVG('svg-balance-intro', 'left', 'A', 'B', 'How it works');
+      renderBalanceSVG('svg-balance-ex1', 'left', 'C', 'A', '');
+      renderBalanceSVG('svg-balance-ex2', 'right', 'B', 'A', '');
+      renderStandardWeightsSVG('svg-balance-standard');
+    }
+
+    // Draw a balance scale SVG
+    // tilt: 'left' (left is heavier), 'right' (right is heavier), 'even'
+    function renderBalanceSVG(containerId, tilt, leftLabel, rightLabel) {
+      const el = document.getElementById(containerId);
+      if (!el || el.innerHTML) return;
+
+      const W = 320, H = 200;
+      const baseY = 180, pivotX = 160, pivotY = 60;
+      const armLen = 110;
+      const tiltAngle = tilt === 'even' ? 0 : (tilt === 'left' ? 12 : -12);
+      const rad = tiltAngle * Math.PI / 180;
+
+      const lx = pivotX - armLen * Math.cos(rad);
+      const ly = pivotY - armLen * Math.sin(rad);
+      const rx = pivotX + armLen * Math.cos(rad);
+      const ry = pivotY + armLen * Math.sin(rad);
+
+      const panW = 70, panH = 14, chainH = 30;
+
+      el.innerHTML = `
+        <svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" style="max-width:100%;">
+          <!-- Base -->
+          <rect x="${pivotX-40}" y="${baseY-10}" width="80" height="10" rx="4" fill="#8B7355"/>
+          <rect x="${pivotX-6}" y="${pivotY}" width="12" height="${baseY-pivotY-10}" rx="3" fill="#A0855B"/>
+          <!-- Pivot -->
+          <circle cx="${pivotX}" cy="${pivotY}" r="8" fill="#D4A574"/>
+          <!-- Arm -->
+          <line x1="${lx}" y1="${ly}" x2="${rx}" y2="${ry}" stroke="#8B7355" stroke-width="5" stroke-linecap="round"/>
+          <!-- Left chain + pan -->
+          <line x1="${lx}" y1="${ly}" x2="${lx}" y2="${ly+chainH}" stroke="#999" stroke-width="2"/>
+          <rect x="${lx-panW/2}" y="${ly+chainH}" width="${panW}" height="${panH}" rx="6" fill="#C4A882"/>
+          <!-- Left label -->
+          <text x="${lx}" y="${ly+chainH-6}" text-anchor="middle" font-family="Fredoka One,cursive" font-size="18" fill="#2D3436">${leftLabel}</text>
+          <!-- Right chain + pan -->
+          <line x1="${rx}" y1="${ry}" x2="${rx}" y2="${ry+chainH}" stroke="#999" stroke-width="2"/>
+          <rect x="${rx-panW/2}" y="${ry+chainH}" width="${panW}" height="${panH}" rx="6" fill="#C4A882"/>
+          <!-- Right label -->
+          <text x="${rx}" y="${ry+chainH-6}" text-anchor="middle" font-family="Fredoka One,cursive" font-size="18" fill="#2D3436">${rightLabel}</text>
+        </svg>`;
+    }
+
+    // Draw a balanced scale with standard weights
+    function renderStandardWeightsSVG(containerId) {
+      const el = document.getElementById(containerId);
+      if (!el || el.innerHTML) return;
+
+      const W = 360, H = 200;
+      const pivotX = 180, pivotY = 55, baseY = 180;
+      const armLen = 120;
+
+      el.innerHTML = `
+        <svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" style="max-width:100%;">
+          <!-- Base -->
+          <rect x="${pivotX-40}" y="${baseY-10}" width="80" height="10" rx="4" fill="#8B7355"/>
+          <rect x="${pivotX-6}" y="${pivotY}" width="12" height="${baseY-pivotY-10}" rx="3" fill="#A0855B"/>
+          <!-- Pivot -->
+          <circle cx="${pivotX}" cy="${pivotY}" r="8" fill="#D4A574"/>
+          <!-- Arm (level) -->
+          <line x1="${pivotX-armLen}" y1="${pivotY}" x2="${pivotX+armLen}" y2="${pivotY}" stroke="#8B7355" stroke-width="5" stroke-linecap="round"/>
+          <!-- Left pan -->
+          <line x1="${pivotX-armLen}" y1="${pivotY}" x2="${pivotX-armLen}" y2="${pivotY+30}" stroke="#999" stroke-width="2"/>
+          <rect x="${pivotX-armLen-40}" y="${pivotY+30}" width="80" height="14" rx="6" fill="#C4A882"/>
+          <!-- Left items (drumsticks) -->
+          <text x="${pivotX-armLen}" y="${pivotY+22}" text-anchor="middle" font-size="24">&#127831;&#127831;&#127831;</text>
+          <!-- Right pan -->
+          <line x1="${pivotX+armLen}" y1="${pivotY}" x2="${pivotX+armLen}" y2="${pivotY+30}" stroke="#999" stroke-width="2"/>
+          <rect x="${pivotX+armLen-40}" y="${pivotY+30}" width="80" height="14" rx="6" fill="#C4A882"/>
+          <!-- Right items (weights) -->
+          <text x="${pivotX+armLen-24}" y="${pivotY+22}" text-anchor="middle" font-size="11" font-weight="800" fill="#555">1kg</text>
+          <text x="${pivotX+armLen+2}" y="${pivotY+22}" text-anchor="middle" font-size="9" font-weight="700" fill="#555">200g</text>
+          <text x="${pivotX+armLen+24}" y="${pivotY+22}" text-anchor="middle" font-size="9" font-weight="700" fill="#555">200g</text>
+          <!-- = sign -->
+          <text x="${pivotX}" y="${pivotY+70}" text-anchor="middle" font-family="Fredoka One,cursive" font-size="16" fill="#6BCB77">Balanced! Both sides are equal.</text>
+        </svg>`;
+    }
+
+    // ═══════════════════════════════════════════
+    //   PRACTICE MODE (Batch 2)
+    // ═══════════════════════════════════════════
+
+    function startPractice() {
+      const area = document.getElementById('practice-question-area');
+      area.innerHTML = `
+        <div style="text-align:center; padding:40px 20px;">
+          <div style="font-size:3rem; margin-bottom:16px;">&#128679;</div>
+          <h3 style="font-family:'Fredoka One',cursive; font-size:1.3rem; color:var(--text-primary); margin-bottom:8px;">Coming Soon!</h3>
+          <p style="font-weight:600; color:var(--text-secondary);">Practice problems are being prepared. Check back soon!</p>
+          <button class="next-btn" style="margin-top:20px;" onclick="showScreen('menu')">&larr; Back to Menu</button>
+        </div>`;
+    }
+
+    // ═══════════════════════════════════════════
+    //   CHALLENGE MODE (Batch 3)
+    // ═══════════════════════════════════════════
+
+    function startChallenge() {
+      const area = document.getElementById('challenge-question-area');
+      area.innerHTML = `
+        <div style="text-align:center; padding:40px 20px;">
+          <div style="font-size:3rem; margin-bottom:16px;">&#128679;</div>
+          <h3 style="font-family:'Fredoka One',cursive; font-size:1.3rem; color:var(--text-primary); margin-bottom:8px;">Coming Soon!</h3>
+          <p style="font-weight:600; color:var(--text-secondary);">Challenge mode is being prepared. Check back soon!</p>
+          <button class="next-btn" style="margin-top:20px;" onclick="showScreen('menu')">&larr; Back to Menu</button>
+        </div>`;
+    }
+
+    function endChallenge() {
+      if (chInterval) { clearInterval(chInterval); chInterval = null; }
+      showScreen('menu');
+    }
+
+    // ═══════════════════════════════════════════
+    //   RESULTS
+    // ═══════════════════════════════════════════
+
+    function showResults(score, total, isChallenge) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById('results-screen').classList.add('active');
+
+      const pct = isChallenge ? score : Math.round((score / total) * 100);
+
+      let title, trophy, stars;
+      if (pct >= 90)      { title = 'Weight Master!'; trophy = '\u{1F3C6}'; stars = '\u2B50\u2B50\u2B50'; }
+      else if (pct >= 70) { title = 'Great Work!';    trophy = '\u{1F947}'; stars = '\u2B50\u2B50'; }
+      else if (pct >= 50) { title = 'Good Effort!';   trophy = '\u{1F948}'; stars = '\u2B50'; }
+      else                { title = 'Keep Practising!'; trophy = '\u{2696}'; stars = ''; }
+
+      document.getElementById('results-trophy').textContent = trophy;
+      document.getElementById('results-title').textContent = title;
+      document.getElementById('results-stars').textContent = stars;
+
+      if (isChallenge) {
+        document.getElementById('results-score').textContent = `You scored ${score} out of 100 (${score}%)`;
+      } else {
+        document.getElementById('results-score').textContent = `You completed all ${total} questions!`;
+      }
+    }
+
+    // ═══════════════════════════════════════════
+    //   UTILITIES
+    // ═══════════════════════════════════════════
+
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function randInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+  </script>
+</body>
+</html>
