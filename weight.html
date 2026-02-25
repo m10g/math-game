@@ -543,6 +543,19 @@
       font-size: 0.8rem;
       opacity: 0.6;
     }
+
+    .premise-box {
+      background: linear-gradient(135deg, #F0FDF4, #DCFCE7);
+      border-radius: 14px;
+      padding: 14px 18px;
+      margin: 4px 0 16px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      line-height: 1.9;
+      border-left: 4px solid var(--success);
+    }
+
+    .stats-bar .timer.warning { color: #DC2626; animation: twinkle 0.6s ease-in-out infinite; }
   </style>
 </head>
 <body>
@@ -967,6 +980,9 @@
     let chQueue = [];
     let chAnswered = false;
 
+    let practiceSelected = null;
+    let practiceScore = 0;
+
     // ═══════════════════════════════════════════
     //   SCREEN MANAGEMENT
     // ═══════════════════════════════════════════
@@ -1091,38 +1107,356 @@
     }
 
     // ═══════════════════════════════════════════
-    //   PRACTICE MODE (Batch 2)
+    //   QUESTION BANK
+    // ═══════════════════════════════════════════
+
+    const practiceProblems = [
+      // --- UNIT CONVERSION ---
+      { type: 'convert', q: '2 kg = _____ g', answer: 2000,
+        hint: '1 kg = 1000 g, so 2 kg = 2 &times; 1000',
+        feedback: '2 &times; 1000 = <strong>2000 g</strong> ✓' },
+      { type: 'convert', q: '1 kg = _____ g', answer: 1000,
+        hint: 'The basic rule: 1 kg = 1000 g',
+        feedback: '1 kg = <strong>1000 g</strong> — always! ✓' },
+      { type: 'convert', q: '3 kg 500 g = _____ g', answer: 3500,
+        hint: 'Convert the kg part first: 3 kg = 3000 g, then add 500 g',
+        feedback: '3 &times; 1000 + 500 = 3000 + 500 = <strong>3500 g</strong> ✓' },
+      { type: 'convert', q: '4 kg 50 g = _____ g', answer: 4050,
+        hint: '4 kg = 4000 g, then add the 50 g part',
+        feedback: '4 &times; 1000 + 50 = 4000 + 50 = <strong>4050 g</strong> ✓' },
+      { type: 'convert', q: '5 kg 200 g = _____ g', answer: 5200,
+        hint: '5 kg = 5000 g, then add 200 g',
+        feedback: '5 &times; 1000 + 200 = 5000 + 200 = <strong>5200 g</strong> ✓' },
+      { type: 'convert', q: '10 kg 300 g = _____ g', answer: 10300,
+        hint: '10 kg = 10 000 g, then add 300 g',
+        feedback: '10 &times; 1000 + 300 = 10 000 + 300 = <strong>10 300 g</strong> ✓' },
+      { type: 'convert', q: '20 kg 20 g = _____ g', answer: 20020,
+        hint: '20 kg = 20 000 g, then add just 20 g — watch the zeros!',
+        feedback: '20 &times; 1000 + 20 = 20 000 + 20 = <strong>20 020 g</strong> ✓' },
+
+      // --- ESTIMATION: RIGHT UNIT ---
+      { type: 'units', q: 'The weight of a refrigerator is about 100 _____', correct: 'kg',
+        hint: 'A refrigerator is very heavy — much more than 100 paper clips!',
+        feedback: 'A refrigerator weighs about 100 <strong>kg</strong>. Using "g" would mean only 100 g — as light as a small snack!' },
+      { type: 'units', q: 'The weight of a basketball is about 600 _____', correct: 'g',
+        hint: 'Can you hold a basketball in one hand? It\'s definitely not 600 kg!',
+        feedback: 'A basketball weighs about 600 <strong>g</strong>. 600 kg would be as heavy as a horse!' },
+      { type: 'units', q: 'The weight of a newborn baby is about 3 _____', correct: 'kg',
+        hint: 'A newborn baby is about as heavy as a large bag of apples',
+        feedback: 'A newborn baby weighs about 3 <strong>kg</strong>. 3 g would be lighter than a coin!' },
+      { type: 'units', q: 'The weight of an apple is about 200 _____', correct: 'g',
+        hint: 'An apple fits in your hand — it\'s definitely not 200 kg!',
+        feedback: 'A medium apple weighs about 200 <strong>g</strong>. 200 kg would be heavier than two motorbikes!' },
+      { type: 'units', q: 'The weight of a bicycle is about 10 _____', correct: 'kg',
+        hint: 'You can lift a bicycle but it takes effort — it\'s much more than just 10 g!',
+        feedback: 'A bicycle weighs about 10 <strong>kg</strong>. 10 g would be lighter than two teaspoons of sugar!' },
+
+      // --- BALANCE LOGIC ---
+      { type: 'balance-logic',
+        premise: '⚖️ Balanced scales:\n• 1 dome = 5 small circles\n• 1 triangle = 8 small circles\n• 2 pentagons = 12 small circles',
+        q: 'Which statement is correct?',
+        options: ['A pentagon is heavier than a triangle.', 'A dome is lighter than a pentagon.', 'Two pentagons are lighter than a triangle.', 'A dome and a triangle weigh the same.'],
+        correct: 'A dome is lighter than a pentagon.',
+        hint: 'Find 1 pentagon first: 2 pentagons = 12 circles, so 1 pentagon = 6 circles. Compare that to the dome (5 circles).',
+        feedback: '1 pentagon = 6 circles, dome = 5 circles. Since 5 &lt; 6, a dome IS lighter than a pentagon. ✓' },
+      { type: 'balance-logic',
+        premise: '⚖️ Balanced scales:\n• 1 square = 4 small circles\n• 1 triangle = 6 small circles',
+        q: 'Which statement is correct?',
+        options: ['A triangle is lighter than a square.', 'A square and a triangle weigh the same.', 'A triangle is heavier than a square.', 'Two squares weigh the same as a triangle.'],
+        correct: 'A triangle is heavier than a square.',
+        hint: 'Square = 4 circles, triangle = 6 circles. Which number is bigger?',
+        feedback: 'Triangle = 6 circles, square = 4 circles. Since 6 &gt; 4, the triangle IS heavier. ✓' },
+      { type: 'balance-logic',
+        premise: '⚖️ Balanced scales:\n• 1 star = 3 small circles\n• 1 circle shape = 7 small circles\n• 2 hearts = 8 small circles',
+        q: 'Which statement is correct?',
+        options: ['A heart is lighter than a star.', 'A circle shape and 2 stars weigh the same.', 'A heart is heavier than a star.', 'A circle shape is lighter than 2 hearts.'],
+        correct: 'A heart is heavier than a star.',
+        hint: '2 hearts = 8 circles, so 1 heart = 4 circles. Compare that to the star (3 circles).',
+        feedback: '1 heart = 4 circles, star = 3 circles. Since 4 &gt; 3, a heart IS heavier than a star. ✓' },
+
+      // --- MEASURING TOOLS ---
+      { type: 'tools', obj: '🎮', objName: 'a game console',
+        q: 'Which tool is most suitable for measuring the weight of a game console?',
+        options: ['Medical syringe', 'Kitchen dial scale', 'Coiled measuring tape', 'Bathroom floor scale'],
+        correct: 'Kitchen dial scale',
+        hint: 'A game console weighs ~300–500 g. First cross out anything that doesn\'t measure weight!',
+        feedback: 'A <strong>kitchen dial scale</strong> is best for a game console (~300–500 g). Syringes measure volume, measuring tapes measure length, and bathroom scales are too imprecise for such a light object.' },
+      { type: 'tools', obj: '📱', objName: 'a mobile phone',
+        q: 'Which tool is most suitable for measuring the weight of a mobile phone?',
+        options: ['Bathroom floor scale', 'Standard ruler', 'Mechanical balance scale (max 1 kg)', 'Kitchen dial scale (0–18 kg)'],
+        correct: 'Mechanical balance scale (max 1 kg)',
+        hint: 'A phone weighs ~150–200 g. Which tool is precise enough? (Rulers measure length, not weight!)',
+        feedback: 'A <strong>mechanical balance scale (max 1 kg)</strong> is most precise for a phone (~150–200 g). The 0–18 kg dial scale would barely move. A ruler measures length, not weight!' },
+      { type: 'tools', obj: '🌾', objName: 'a 5 kg bag of rice',
+        q: 'Which tool is most suitable for measuring the weight of a 5 kg bag of rice?',
+        options: ['Kitchen scale (max 1 kg)', 'Bathroom floor scale', 'Mechanical balance scale (max 1 kg)', 'Postage scale (max 500 g)'],
+        correct: 'Bathroom floor scale',
+        hint: 'The bag weighs 5 kg. Check the maximum weight each tool can handle!',
+        feedback: 'A <strong>bathroom floor scale</strong> handles up to 100–150 kg, perfect for a 5 kg bag. All other options have a maximum well below 5 kg!' },
+    ];
+
+    // ═══════════════════════════════════════════
+    //   PRACTICE MODE
     // ═══════════════════════════════════════════
 
     function startPractice() {
-      const area = document.getElementById('practice-question-area');
-      area.innerHTML = `
-        <div style="text-align:center; padding:40px 20px;">
-          <div style="font-size:3rem; margin-bottom:16px;">&#128679;</div>
-          <h3 style="font-family:'Fredoka One',cursive; font-size:1.3rem; color:var(--text-primary); margin-bottom:8px;">Coming Soon!</h3>
-          <p style="font-weight:600; color:var(--text-secondary);">Practice problems are being prepared. Check back soon!</p>
-          <button class="next-btn" style="margin-top:20px;" onclick="showScreen('menu')">&larr; Back to Menu</button>
-        </div>`;
+      practiceQueue = shuffle([...practiceProblems]).slice(0, 10);
+      practiceIdx = 0;
+      practiceScore = 0;
+      practiceSelected = null;
+      updatePracticeProgress();
+      renderPracticeQuestion();
+    }
+
+    function updatePracticeProgress() {
+      document.getElementById('practice-progress').style.width =
+        (practiceIdx / practiceQueue.length * 100) + '%';
+    }
+
+    function renderPracticeQuestion() {
+      if (practiceIdx >= practiceQueue.length) {
+        showResults(practiceScore, practiceQueue.length, false);
+        return;
+      }
+      practiceSelected = null;
+      const p = practiceQueue[practiceIdx];
+      document.getElementById('practice-question-area').innerHTML = buildPracticeHTML(p);
+      if (p.type === 'convert') {
+        const inp = document.getElementById('prac-input');
+        inp.addEventListener('keydown', e => { if (e.key === 'Enter') submitPractice(); });
+        inp.addEventListener('input', () => {
+          document.getElementById('prac-submit').disabled = inp.value.trim() === '';
+        });
+        inp.focus();
+      }
+    }
+
+    function buildPracticeHTML(p) {
+      let html = `<div class="question-text"><span style="color:var(--text-secondary);font-size:0.85rem;">Question ${practiceIdx + 1} / ${practiceQueue.length}</span><br>`;
+
+      if (p.type === 'convert') {
+        html += `Fill in the blank:</div>`;
+        html += `<div style="font-family:'Fredoka One',cursive;font-size:1.4rem;text-align:center;margin:10px 0 4px;">${p.q}</div>`;
+        html += `<input id="prac-input" type="number" class="answer-input" placeholder="?" autocomplete="off" inputmode="numeric">`;
+        html += `<button id="prac-submit" class="submit-btn" onclick="submitPractice()" disabled>Check Answer ✓</button>`;
+
+      } else if (p.type === 'units') {
+        html += `Choose the correct unit:</div>`;
+        html += `<div style="font-weight:700;font-size:1.05rem;margin:12px 0 16px;line-height:1.6;">${p.q}</div>`;
+        html += `<div class="options-grid" id="opt-grid">`;
+        html += `<button class="option-btn" data-val="kg" onclick="selectPracOption(this)"><strong style="font-size:1.3rem;">kg</strong><br><small style="font-weight:600;color:var(--text-secondary);">kilogram</small></button>`;
+        html += `<button class="option-btn" data-val="g" onclick="selectPracOption(this)"><strong style="font-size:1.3rem;">g</strong><br><small style="font-weight:600;color:var(--text-secondary);">gram</small></button>`;
+        html += `</div>`;
+        html += `<button id="prac-submit" class="submit-btn" onclick="submitPractice()" disabled>Check Answer ✓</button>`;
+
+      } else if (p.type === 'balance-logic') {
+        html += `${p.q}</div>`;
+        html += `<div class="premise-box" style="white-space:pre-line;">${p.premise}</div>`;
+        const opts = shuffle([...p.options]);
+        html += `<div class="options-grid" id="opt-grid">`;
+        for (const o of opts) {
+          html += `<button class="option-btn" data-val="${o.replace(/"/g, '&quot;')}" onclick="selectPracOption(this)">${o}</button>`;
+        }
+        html += `</div>`;
+        html += `<button id="prac-submit" class="submit-btn" onclick="submitPractice()" disabled>Check Answer ✓</button>`;
+
+      } else if (p.type === 'tools') {
+        html += `${p.q}</div>`;
+        html += `<div style="font-size:3rem;text-align:center;margin:10px 0 14px;">${p.obj}</div>`;
+        const opts = shuffle([...p.options]);
+        html += `<div class="options-grid" id="opt-grid">`;
+        for (const o of opts) {
+          html += `<button class="option-btn" data-val="${o.replace(/"/g, '&quot;')}" onclick="selectPracOption(this)">${o}</button>`;
+        }
+        html += `</div>`;
+        html += `<button id="prac-submit" class="submit-btn" onclick="submitPractice()" disabled>Check Answer ✓</button>`;
+      }
+
+      html += `<button class="hint-btn" id="hint-toggle" onclick="document.getElementById('hint-box').style.display='block';this.style.display='none';">💡 Need a hint?</button>`;
+      html += `<div id="hint-box" class="hint-text" style="display:none;padding:10px;background:#FFFBEB;border-radius:10px;margin-top:8px;">${p.hint}</div>`;
+      html += `<div id="prac-feedback" class="feedback">`;
+      html += `<div class="fb-icon" id="prac-fb-icon"></div>`;
+      html += `<div class="fb-message" id="prac-fb-msg"></div>`;
+      html += `<div class="fb-detail" id="prac-fb-detail"></div>`;
+      html += `<button class="next-btn" onclick="nextPractice()">Next &#8594;</button>`;
+      html += `</div>`;
+      return html;
+    }
+
+    function selectPracOption(btn) {
+      practiceSelected = btn.dataset.val;
+      document.querySelectorAll('#opt-grid .option-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      document.getElementById('prac-submit').disabled = false;
+    }
+
+    function submitPractice() {
+      const p = practiceQueue[practiceIdx];
+      let isCorrect = false;
+
+      if (p.type === 'convert') {
+        const inp = document.getElementById('prac-input');
+        isCorrect = (parseInt(inp.value, 10) === p.answer);
+        inp.disabled = true;
+        inp.style.borderColor = isCorrect ? 'var(--success)' : 'var(--error)';
+        inp.style.background = isCorrect ? '#F0FDF4' : '#FEF2F2';
+      } else {
+        isCorrect = (practiceSelected === p.correct);
+        document.querySelectorAll('#opt-grid .option-btn').forEach(b => {
+          b.disabled = true;
+          b.onclick = null;
+          if (b.dataset.val === p.correct) b.classList.add('correct');
+          else if (b.classList.contains('selected') && !isCorrect) b.classList.add('wrong');
+        });
+      }
+
+      if (isCorrect) practiceScore++;
+
+      document.getElementById('prac-submit').style.display = 'none';
+      const hintToggle = document.getElementById('hint-toggle');
+      if (hintToggle) hintToggle.style.display = 'none';
+
+      const fb = document.getElementById('prac-feedback');
+      fb.classList.add('show', isCorrect ? 'correct' : 'wrong');
+      document.getElementById('prac-fb-icon').textContent = isCorrect ? '🎉' : '🤔';
+      document.getElementById('prac-fb-msg').textContent = isCorrect ? 'Correct!' : 'Not quite!';
+      let detail = p.feedback;
+      if (!isCorrect && p.type === 'convert') detail += `<br>The answer is <strong>${p.answer} g</strong>.`;
+      document.getElementById('prac-fb-detail').innerHTML = detail;
+    }
+
+    function nextPractice() {
+      practiceIdx++;
+      updatePracticeProgress();
+      renderPracticeQuestion();
     }
 
     // ═══════════════════════════════════════════
-    //   CHALLENGE MODE (Batch 3)
+    //   CHALLENGE MODE
     // ═══════════════════════════════════════════
 
     function startChallenge() {
-      const area = document.getElementById('challenge-question-area');
-      area.innerHTML = `
-        <div style="text-align:center; padding:40px 20px;">
-          <div style="font-size:3rem; margin-bottom:16px;">&#128679;</div>
-          <h3 style="font-family:'Fredoka One',cursive; font-size:1.3rem; color:var(--text-primary); margin-bottom:8px;">Coming Soon!</h3>
-          <p style="font-weight:600; color:var(--text-secondary);">Challenge mode is being prepared. Check back soon!</p>
-          <button class="next-btn" style="margin-top:20px;" onclick="showScreen('menu')">&larr; Back to Menu</button>
-        </div>`;
+      chScore = 0; chIdx = 0; chTimer = 90; chAnswered = false;
+      chQueue = shuffle([...practiceProblems]).slice(0, 10);
+      if (chInterval) clearInterval(chInterval);
+      chInterval = setInterval(tickChallenge, 1000);
+      updateChStats();
+      renderChallengeQuestion();
+    }
+
+    function tickChallenge() {
+      chTimer--;
+      const el = document.getElementById('ch-timer');
+      const mins = Math.floor(chTimer / 60);
+      const secs = chTimer % 60;
+      el.textContent = mins + ':' + String(secs).padStart(2, '0');
+      if (chTimer <= 10) el.classList.add('warning');
+      if (chTimer <= 0) endChallenge();
+    }
+
+    function updateChStats() {
+      document.getElementById('ch-score').textContent = chScore;
+      document.getElementById('ch-qnum').textContent =
+        (Math.min(chIdx, chQueue.length - 1) + 1) + '/' + chQueue.length;
+    }
+
+    function renderChallengeQuestion() {
+      if (chIdx >= chQueue.length) { endChallenge(); return; }
+      const p = chQueue[chIdx];
+      chAnswered = false;
+      let html = '';
+
+      if (p.type === 'convert') {
+        html += `<div class="question-text" style="text-align:center;">${p.q}</div>`;
+        html += `<input id="ch-input" type="number" class="answer-input" placeholder="?" autocomplete="off" inputmode="numeric">`;
+        html += `<div id="ch-flash" style="text-align:center;font-size:1.1rem;font-weight:700;min-height:1.8rem;margin:6px 0;"></div>`;
+        html += `<button id="ch-submit" class="submit-btn" onclick="answerChallengeInput()">Submit ✓</button>`;
+
+      } else if (p.type === 'units') {
+        html += `<div class="question-text">${p.q}</div>`;
+        html += `<div class="options-grid">`;
+        html += `<button class="option-btn" data-val="kg" onclick="answerChallenge(this)"><strong style="font-size:1.3rem;">kg</strong><br><small style="font-weight:600;color:var(--text-secondary);">kilogram</small></button>`;
+        html += `<button class="option-btn" data-val="g" onclick="answerChallenge(this)"><strong style="font-size:1.3rem;">g</strong><br><small style="font-weight:600;color:var(--text-secondary);">gram</small></button>`;
+        html += `</div>`;
+
+      } else if (p.type === 'balance-logic') {
+        html += `<div class="question-text">${p.q}</div>`;
+        html += `<div class="premise-box" style="white-space:pre-line;margin:8px 0 14px;">${p.premise}</div>`;
+        const opts = shuffle([...p.options]);
+        html += `<div class="options-grid">`;
+        for (const o of opts) {
+          html += `<button class="option-btn" data-val="${o.replace(/"/g, '&quot;')}" onclick="answerChallenge(this)">${o}</button>`;
+        }
+        html += `</div>`;
+
+      } else if (p.type === 'tools') {
+        html += `<div class="question-text">${p.q}</div>`;
+        html += `<div style="font-size:3rem;text-align:center;margin:8px 0 12px;">${p.obj}</div>`;
+        const opts = shuffle([...p.options]);
+        html += `<div class="options-grid">`;
+        for (const o of opts) {
+          html += `<button class="option-btn" data-val="${o.replace(/"/g, '&quot;')}" onclick="answerChallenge(this)">${o}</button>`;
+        }
+        html += `</div>`;
+      }
+
+      document.getElementById('challenge-question-area').innerHTML = html;
+
+      if (p.type === 'convert') {
+        const inp = document.getElementById('ch-input');
+        if (inp) {
+          inp.addEventListener('keydown', e => { if (e.key === 'Enter') answerChallengeInput(); });
+          inp.focus();
+        }
+      }
+    }
+
+    function answerChallenge(btn) {
+      if (chAnswered) return;
+      chAnswered = true;
+      const p = chQueue[chIdx];
+      const correct = (btn.dataset.val === p.correct);
+      if (correct) chScore += 10;
+
+      document.querySelectorAll('#challenge-question-area .option-btn').forEach(b => {
+        b.disabled = true;
+        b.onclick = null;
+        if (b.dataset.val === p.correct) b.classList.add('correct');
+        else if (b === btn && !correct) b.classList.add('wrong');
+      });
+
+      updateChStats();
+      setTimeout(() => { chIdx++; updateChStats(); renderChallengeQuestion(); }, 900);
+    }
+
+    function answerChallengeInput() {
+      if (chAnswered) return;
+      const inp = document.getElementById('ch-input');
+      if (!inp || inp.value.trim() === '') return;
+      chAnswered = true;
+      const p = chQueue[chIdx];
+      const correct = (parseInt(inp.value, 10) === p.answer);
+      if (correct) chScore += 10;
+
+      inp.disabled = true;
+      inp.style.borderColor = correct ? 'var(--success)' : 'var(--error)';
+      inp.style.background = correct ? '#F0FDF4' : '#FEF2F2';
+
+      const flash = document.getElementById('ch-flash');
+      if (flash) {
+        flash.textContent = correct ? '🎉 Correct!' : `✗  Answer: ${p.answer} g`;
+        flash.style.color = correct ? '#16A34A' : '#DC2626';
+      }
+      const sub = document.getElementById('ch-submit');
+      if (sub) sub.style.display = 'none';
+
+      updateChStats();
+      setTimeout(() => { chIdx++; renderChallengeQuestion(); }, 1200);
     }
 
     function endChallenge() {
       if (chInterval) { clearInterval(chInterval); chInterval = null; }
-      showScreen('menu');
+      showResults(chScore, 100, true);
     }
 
     // ═══════════════════════════════════════════
@@ -1148,7 +1482,7 @@
       if (isChallenge) {
         document.getElementById('results-score').textContent = `You scored ${score} out of 100 (${score}%)`;
       } else {
-        document.getElementById('results-score').textContent = `You completed all ${total} questions!`;
+        document.getElementById('results-score').textContent = `You got ${score} / ${total} correct!`;
       }
     }
 
