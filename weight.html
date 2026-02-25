@@ -1160,6 +1160,86 @@
       return s;
     }
 
+    function makeBalanceReadSVG(leftLabel, rightWeights) {
+      const W=280,H=170,pX=140,pY=52,aL=90,bY=155,pW=62,pH=11,cH=22;
+      const ang=0;
+      const lx=pX-aL,ly=pY,rx=pX+aL,ry=pY;
+      const f=n=>n.toFixed(1);
+      let s=`<svg viewBox="0 0 ${W} ${H}" width="280" height="170" font-family="sans-serif">`;
+      // base
+      s+=`<rect x="${pX-3}" y="${pY+4}" width="6" height="${bY-pY-4}" fill="#888"/>`;
+      s+=`<polygon points="${pX},${bY-14} ${pX-10},${bY} ${pX+10},${bY}" fill="#666"/>`;
+      s+=`<rect x="${pX-45}" y="${bY}" width="90" height="8" rx="4" fill="#555"/>`;
+      // pivot circle
+      s+=`<circle cx="${pX}" cy="${pY}" r="5" fill="#444"/>`;
+      // beam
+      s+=`<line x1="${f(lx)}" y1="${f(ly)}" x2="${f(rx)}" y2="${f(ry)}" stroke="#555" stroke-width="4" stroke-linecap="round"/>`;
+      // strings
+      const sPad=pW*0.35;
+      s+=`<line x1="${f(lx-sPad)}" y1="${f(ly)}" x2="${f(lx-sPad)}" y2="${f(ly+cH)}" stroke="#888" stroke-width="1.5"/>`;
+      s+=`<line x1="${f(lx+sPad)}" y1="${f(ly)}" x2="${f(lx+sPad)}" y2="${f(ly+cH)}" stroke="#888" stroke-width="1.5"/>`;
+      s+=`<line x1="${f(rx-sPad)}" y1="${f(ry)}" x2="${f(rx-sPad)}" y2="${f(ry+cH)}" stroke="#888" stroke-width="1.5"/>`;
+      s+=`<line x1="${f(rx+sPad)}" y1="${f(ry)}" x2="${f(rx+sPad)}" y2="${f(ry+cH)}" stroke="#888" stroke-width="1.5"/>`;
+      // pans
+      s+=`<rect x="${f(lx-pW/2)}" y="${f(ly+cH)}" width="${pW}" height="${pH}" rx="5" fill="#BDC3C7"/>`;
+      s+=`<rect x="${f(rx-pW/2)}" y="${f(ry+cH)}" width="${pW}" height="${pH}" rx="5" fill="#BDC3C7"/>`;
+      // left: object emoji
+      s+=`<text x="${f(lx)}" y="${f(ly+cH+pH+18)}" text-anchor="middle" font-size="24">${leftLabel}</text>`;
+      // right: weight labels stacked
+      const wH=18, gap=2;
+      const totalH=rightWeights.length*(wH+gap)-gap;
+      const startY=ly+cH+pH+4;
+      rightWeights.forEach((w,i)=>{
+        const wy=startY+i*(wH+gap);
+        s+=`<rect x="${f(rx-26)}" y="${f(wy)}" width="52" height="${wH}" rx="4" fill="#85929E"/>`;
+        s+=`<text x="${f(rx)}" y="${f(wy+13)}" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">${w}</text>`;
+      });
+      // balance indicator (= sign)
+      s+=`<text x="${f(pX)}" y="${f(pY-10)}" text-anchor="middle" font-size="13" font-weight="800" fill="#27AE60">balanced</text>`;
+      s+=`</svg>`;
+      return s;
+    }
+
+    function makeDoubleDialSVG(cfg1, cfg2, label1, label2) {
+      const dW=140,dH=150,cx=70,cy=80,r=50;
+      function oneDial(cfg,offX){
+        const mn=cfg.majorMarks[0],mx=cfg.majorMarks[cfg.majorMarks.length-1];
+        function vToA(v){ return (210-(v-mn)/(mx-mn)*240)*Math.PI/180; }
+        function pt(a,d){ return {x:cx+offX+d*Math.cos(a),y:cy-d*Math.sin(a)}; }
+        const f=n=>n.toFixed(1);
+        const minStep=(mx-mn)/(cfg.subdivisions*(cfg.majorMarks.length-1));
+        let s='';
+        s+=`<circle cx="${cx+offX}" cy="${cy}" r="${r}" fill="${cfg.faceColor||'#F5F5F5'}" stroke="#999" stroke-width="2"/>`;
+        const totalTicks=cfg.subdivisions*(cfg.majorMarks.length-1);
+        for(let i=0;i<=totalTicks;i++){
+          const v=mn+i*(mx-mn)/totalTicks;
+          const isMaj=cfg.majorMarks.some(m=>Math.abs(m-v)<minStep*0.15);
+          const a=vToA(v),len=isMaj?10:5,p1=pt(a,r-2),p2=pt(a,r-2-len);
+          s+=`<line x1="${f(p1.x)}" y1="${f(p1.y)}" x2="${f(p2.x)}" y2="${f(p2.y)}" stroke="#555" stroke-width="${isMaj?2:1}"/>`;
+          if(isMaj){
+            const lbl=cfg.majorMarks.find(m=>Math.abs(m-v)<minStep*0.15);
+            const showLbl=lbl%1===0?lbl:lbl.toFixed(1);
+            const lp=pt(a,r-18);
+            const fs=String(showLbl).length>2?8:10;
+            s+=`<text x="${f(lp.x)}" y="${f(lp.y+3)}" text-anchor="middle" font-size="${fs}" fill="#333">${showLbl}${cfg.unit}</text>`;
+          }
+        }
+        s+=`<text x="${cx+offX}" y="${cy+r*0.52}" text-anchor="middle" font-size="9" font-weight="700" fill="#666">${cfg.unit}</text>`;
+        const nA=vToA(cfg.needleVal),nTip=pt(nA,r-8),nB1=pt(nA+Math.PI/2,4),nB2=pt(nA-Math.PI/2,4);
+        s+=`<polygon points="${f(nTip.x)},${f(nTip.y)} ${f(nB1.x)},${f(nB1.y)} ${f(nB2.x)},${f(nB2.y)}" fill="#E53935"/>`;
+        s+=`<circle cx="${cx+offX}" cy="${cy}" r="4" fill="#555"/>`;
+        return s;
+      }
+      const totalW=dW*2+20;
+      let s=`<svg viewBox="0 0 ${totalW} ${dH+30}" width="${totalW}" height="${dH+30}" font-family="sans-serif">`;
+      s+=oneDial(cfg1,0);
+      s+=`<text x="${cx}" y="${dH+18}" text-anchor="middle" font-size="13" font-weight="700" fill="#555">${label1}</text>`;
+      s+=oneDial(cfg2,dW+20);
+      s+=`<text x="${cx+dW+20}" y="${dH+18}" text-anchor="middle" font-size="13" font-weight="700" fill="#555">${label2}</text>`;
+      s+=`</svg>`;
+      return s;
+    }
+
     // ═══════════════════════════════════════════
     //   QUESTION BANK
     // ═══════════════════════════════════════════
@@ -1296,6 +1376,58 @@
         answer: 4000,
         hint: 'There are 5 intervals between 0 and 5 kg, so each tick = 1 kg = 1000 g. Count from 0.',
         feedback: 'Each tick = 1 kg. Needle is at 4th tick from 0 = 4 kg = <strong>4000 g</strong> ✓' },
+
+      // --- READING A BALANCED SCALE ---
+      { type: 'balance-read',
+        q: 'The scale is balanced. What is the weight of the parcel in grams?',
+        leftLabel: '📦',
+        rightWeights: ['500g','200g'],
+        answer: 700,
+        hint: 'Add up all the standard weights on the right pan.',
+        feedback: '500 g + 200 g = <strong>700 g</strong> ✓' },
+      { type: 'balance-read',
+        q: 'The scale is balanced. What is the weight of the gift box in grams?',
+        leftLabel: '🎁',
+        rightWeights: ['1 kg','300g'],
+        answer: 1300,
+        hint: '1 kg = 1000 g. Add 1000 g and 300 g.',
+        feedback: '1000 g + 300 g = <strong>1300 g</strong> ✓' },
+      { type: 'balance-read',
+        q: 'The scale is balanced. What is the weight of the pumpkin in grams?',
+        leftLabel: '🎃',
+        rightWeights: ['500g','500g','200g'],
+        answer: 1200,
+        hint: 'Add all three standard weights together.',
+        feedback: '500 + 500 + 200 = <strong>1200 g</strong> ✓' },
+
+      // --- WEIGHT COMPARISON (two dials) ---
+      { type: 'weight-compare',
+        q: 'Look at both scales. Which object is lighter?',
+        dial1: {majorMarks:[0,1,2,3],subdivisions:5,needleVal:0.6,unit:'kg',faceColor:'#E8F5E9'},
+        dial2: {majorMarks:[0,1,2,3],subdivisions:5,needleVal:2.0,unit:'kg',faceColor:'#FCE4EC'},
+        label1: 'Object A', label2: 'Object B',
+        options: ['Object A','Object B'],
+        correct: 'Object A',
+        hint: 'Compare the needle positions. The needle pointing closer to 0 is lighter.',
+        feedback: 'A = 0.6 kg, B = 2.0 kg. <strong>Object A</strong> is lighter ✓' },
+      { type: 'weight-compare',
+        q: 'Look at both scales. How much heavier is Object B than Object A? (in grams)',
+        dial1: {majorMarks:[0,200,400,600,800,1000],subdivisions:4,needleVal:200,unit:'g',faceColor:'#E3F2FD'},
+        dial2: {majorMarks:[0,200,400,600,800,1000],subdivisions:4,needleVal:600,unit:'g',faceColor:'#FFF3E0'},
+        label1: 'Object A', label2: 'Object B',
+        isNumeric: true,
+        answer: 400,
+        hint: 'Subtract A\'s weight from B\'s weight. Read each needle carefully.',
+        feedback: 'A = 200 g, B = 600 g. 600 − 200 = <strong>400 g</strong> ✓' },
+      { type: 'weight-compare',
+        q: 'Look at both scales. Which object is heavier?',
+        dial1: {majorMarks:[0,1,2,3,4,5],subdivisions:5,needleVal:3.5,unit:'kg',faceColor:'#EDE7F6'},
+        dial2: {majorMarks:[0,1,2,3,4,5],subdivisions:5,needleVal:1.5,unit:'kg',faceColor:'#E0F7FA'},
+        label1: 'Object A', label2: 'Object B',
+        options: ['Object A','Object B'],
+        correct: 'Object A',
+        hint: 'Which needle points to a higher number?',
+        feedback: 'A = 3.5 kg, B = 1.5 kg. <strong>Object A</strong> is heavier ✓' },
     ];
 
     // ═══════════════════════════════════════════
@@ -1324,7 +1456,7 @@
       practiceSelected = null;
       const p = practiceQueue[practiceIdx];
       document.getElementById('practice-question-area').innerHTML = buildPracticeHTML(p);
-      if (p.type === 'convert' || p.type === 'dial-read') {
+      if (p.type === 'convert' || p.type === 'dial-read' || p.type === 'balance-read' || (p.type === 'weight-compare' && p.isNumeric)) {
         const inp = document.getElementById('prac-input');
         inp.addEventListener('keydown', e => { if (e.key === 'Enter') submitPractice(); });
         inp.addEventListener('input', () => {
@@ -1396,6 +1528,28 @@
         html += `<div style="display:flex;justify-content:center;margin:10px 0 14px;">${makeDialSVG(p.dialCfg)}</div>`;
         html += `<input id="prac-input" type="number" class="answer-input" placeholder="? g" autocomplete="off" inputmode="numeric">`;
         html += `<button id="prac-submit" class="submit-btn" onclick="submitPractice()" disabled>Check Answer ✓</button>`;
+
+      } else if (p.type === 'balance-read') {
+        html += `${p.q}</div>`;
+        html += `<div style="display:flex;justify-content:center;margin:10px 0 14px;">${makeBalanceReadSVG(p.leftLabel, p.rightWeights)}</div>`;
+        html += `<input id="prac-input" type="number" class="answer-input" placeholder="? g" autocomplete="off" inputmode="numeric">`;
+        html += `<button id="prac-submit" class="submit-btn" onclick="submitPractice()" disabled>Check Answer ✓</button>`;
+
+      } else if (p.type === 'weight-compare') {
+        html += `${p.q}</div>`;
+        html += `<div style="display:flex;justify-content:center;margin:8px 0 14px;">${makeDoubleDialSVG(p.dial1, p.dial2, p.label1, p.label2)}</div>`;
+        if (p.isNumeric) {
+          html += `<input id="prac-input" type="number" class="answer-input" placeholder="? g" autocomplete="off" inputmode="numeric">`;
+          html += `<button id="prac-submit" class="submit-btn" onclick="submitPractice()" disabled>Check Answer ✓</button>`;
+        } else {
+          const wOpts = shuffle([...p.options]);
+          html += `<div class="options-grid" id="opt-grid">`;
+          for (const o of wOpts) {
+            html += `<button class="option-btn" data-val="${o}" onclick="selectPracOption(this)">${o}</button>`;
+          }
+          html += `</div>`;
+          html += `<button id="prac-submit" class="submit-btn" onclick="submitPractice()" disabled>Check Answer ✓</button>`;
+        }
       }
 
       html += `<button class="hint-btn" id="hint-toggle" onclick="document.getElementById('hint-box').style.display='block';this.style.display='none';">💡 Need a hint?</button>`;
@@ -1420,7 +1574,7 @@
       const p = practiceQueue[practiceIdx];
       let isCorrect = false;
 
-      if (p.type === 'convert' || p.type === 'dial-read') {
+      if (p.type === 'convert' || p.type === 'dial-read' || p.type === 'balance-read' || (p.type === 'weight-compare' && p.isNumeric)) {
         const inp = document.getElementById('prac-input');
         isCorrect = (parseInt(inp.value, 10) === p.answer);
         inp.disabled = true;
@@ -1547,11 +1701,34 @@
         html += `<input id="ch-input" type="number" class="answer-input" placeholder="? g" autocomplete="off" inputmode="numeric">`;
         html += `<div id="ch-flash" style="text-align:center;font-size:1.1rem;font-weight:700;min-height:1.8rem;margin:6px 0;"></div>`;
         html += `<button id="ch-submit" class="submit-btn" onclick="answerChallengeInput()">Submit ✓</button>`;
+
+      } else if (p.type === 'balance-read') {
+        html += `<div class="question-text" style="text-align:center;">${p.q}</div>`;
+        html += `<div style="display:flex;justify-content:center;margin:8px 0;">${makeBalanceReadSVG(p.leftLabel, p.rightWeights)}</div>`;
+        html += `<input id="ch-input" type="number" class="answer-input" placeholder="? g" autocomplete="off" inputmode="numeric">`;
+        html += `<div id="ch-flash" style="text-align:center;font-size:1.1rem;font-weight:700;min-height:1.8rem;margin:6px 0;"></div>`;
+        html += `<button id="ch-submit" class="submit-btn" onclick="answerChallengeInput()">Submit ✓</button>`;
+
+      } else if (p.type === 'weight-compare') {
+        html += `<div class="question-text" style="text-align:center;">${p.q}</div>`;
+        html += `<div style="display:flex;justify-content:center;margin:6px 0;">${makeDoubleDialSVG(p.dial1, p.dial2, p.label1, p.label2)}</div>`;
+        if (p.isNumeric) {
+          html += `<input id="ch-input" type="number" class="answer-input" placeholder="? g" autocomplete="off" inputmode="numeric">`;
+          html += `<div id="ch-flash" style="text-align:center;font-size:1.1rem;font-weight:700;min-height:1.8rem;margin:6px 0;"></div>`;
+          html += `<button id="ch-submit" class="submit-btn" onclick="answerChallengeInput()">Submit ✓</button>`;
+        } else {
+          const wOpts = shuffle([...p.options]);
+          html += `<div class="options-grid">`;
+          for (const o of wOpts) {
+            html += `<button class="option-btn" data-val="${o}" onclick="answerChallenge(this)">${o}</button>`;
+          }
+          html += `</div>`;
+        }
       }
 
       document.getElementById('challenge-question-area').innerHTML = html;
 
-      if (p.type === 'convert' || p.type === 'dial-read') {
+      if (p.type === 'convert' || p.type === 'dial-read' || p.type === 'balance-read' || (p.type === 'weight-compare' && p.isNumeric)) {
         const inp = document.getElementById('ch-input');
         if (inp) {
           inp.addEventListener('keydown', e => { if (e.key === 'Enter') answerChallengeInput(); });
