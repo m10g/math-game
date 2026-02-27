@@ -931,7 +931,7 @@
       </div>
     </div>
 
-    <!-- CHALLENGE SCREEN (placeholder for Batch 3) -->
+    <!-- CHALLENGE SCREEN -->
     <div id="challenge-screen" class="screen">
       <button class="back-btn" onclick="endChallenge()">&larr; End Challenge</button>
       <div class="card">
@@ -941,6 +941,10 @@
             <div class="value" id="ch-score">0</div>
           </div>
           <div class="timer" id="ch-timer">1:30</div>
+          <div class="stat">
+            <div class="label">Level</div>
+            <div class="value" id="ch-level">Medium</div>
+          </div>
           <div class="stat">
             <div class="label">Question</div>
             <div class="value" id="ch-qnum">1/10</div>
@@ -957,6 +961,7 @@
         <h2 id="results-title">Great Job!</h2>
         <div class="score" id="results-score"></div>
         <div class="stars" id="results-stars"></div>
+        <div id="results-next-level" style="font-size: 1rem; color: var(--text-secondary); margin-bottom: 20px;"></div>
         <button class="play-again-btn" onclick="showScreen('menu')">Back to Menu</button>
       </div>
     </div>
@@ -1246,61 +1251,61 @@
 
     const practiceProblems = [
       // --- UNIT CONVERSION ---
-      { type: 'convert', q: '2 kg = _____ g', answer: 2000,
+      { type: 'convert', diff: 1, q: '2 kg = _____ g', answer: 2000,
         hint: '1 kg = 1000 g, so 2 kg = 2 &times; 1000',
         feedback: '2 &times; 1000 = <strong>2000 g</strong> ✓' },
-      { type: 'convert', q: '1 kg = _____ g', answer: 1000,
+      { type: 'convert', diff: 1, q: '1 kg = _____ g', answer: 1000,
         hint: 'The basic rule: 1 kg = 1000 g',
         feedback: '1 kg = <strong>1000 g</strong> — always! ✓' },
-      { type: 'convert', q: '3 kg 500 g = _____ g', answer: 3500,
+      { type: 'convert', diff: 2, q: '3 kg 500 g = _____ g', answer: 3500,
         hint: 'Convert the kg part first: 3 kg = 3000 g, then add 500 g',
         feedback: '3 &times; 1000 + 500 = 3000 + 500 = <strong>3500 g</strong> ✓' },
-      { type: 'convert', q: '4 kg 50 g = _____ g', answer: 4050,
+      { type: 'convert', diff: 3, q: '4 kg 50 g = _____ g', answer: 4050,
         hint: '4 kg = 4000 g, then add the 50 g part',
         feedback: '4 &times; 1000 + 50 = 4000 + 50 = <strong>4050 g</strong> ✓' },
-      { type: 'convert', q: '5 kg 200 g = _____ g', answer: 5200,
+      { type: 'convert', diff: 2, q: '5 kg 200 g = _____ g', answer: 5200,
         hint: '5 kg = 5000 g, then add 200 g',
         feedback: '5 &times; 1000 + 200 = 5000 + 200 = <strong>5200 g</strong> ✓' },
-      { type: 'convert', q: '10 kg 300 g = _____ g', answer: 10300,
+      { type: 'convert', diff: 3, q: '10 kg 300 g = _____ g', answer: 10300,
         hint: '10 kg = 10 000 g, then add 300 g',
         feedback: '10 &times; 1000 + 300 = 10 000 + 300 = <strong>10 300 g</strong> ✓' },
-      { type: 'convert', q: '20 kg 20 g = _____ g', answer: 20020,
+      { type: 'convert', diff: 3, q: '20 kg 20 g = _____ g', answer: 20020,
         hint: '20 kg = 20 000 g, then add just 20 g — watch the zeros!',
         feedback: '20 &times; 1000 + 20 = 20 000 + 20 = <strong>20 020 g</strong> ✓' },
 
       // --- ESTIMATION: RIGHT UNIT ---
-      { type: 'units', q: 'The weight of a refrigerator is about 100 _____', correct: 'kg',
+      { type: 'units', diff: 1, q: 'The weight of a refrigerator is about 100 _____', correct: 'kg',
         hint: 'A refrigerator is very heavy — much more than 100 paper clips!',
         feedback: 'A refrigerator weighs about 100 <strong>kg</strong>. Using "g" would mean only 100 g — as light as a small snack!' },
-      { type: 'units', q: 'The weight of a basketball is about 600 _____', correct: 'g',
+      { type: 'units', diff: 1, q: 'The weight of a basketball is about 600 _____', correct: 'g',
         hint: 'Can you hold a basketball in one hand? It\'s definitely not 600 kg!',
         feedback: 'A basketball weighs about 600 <strong>g</strong>. 600 kg would be as heavy as a horse!' },
-      { type: 'units', q: 'The weight of a newborn baby is about 3 _____', correct: 'kg',
+      { type: 'units', diff: 1, q: 'The weight of a newborn baby is about 3 _____', correct: 'kg',
         hint: 'A newborn baby is about as heavy as a large bag of apples',
         feedback: 'A newborn baby weighs about 3 <strong>kg</strong>. 3 g would be lighter than a coin!' },
-      { type: 'units', q: 'The weight of an apple is about 200 _____', correct: 'g',
+      { type: 'units', diff: 1, q: 'The weight of an apple is about 200 _____', correct: 'g',
         hint: 'An apple fits in your hand — it\'s definitely not 200 kg!',
         feedback: 'A medium apple weighs about 200 <strong>g</strong>. 200 kg would be heavier than two motorbikes!' },
-      { type: 'units', q: 'The weight of a bicycle is about 10 _____', correct: 'kg',
+      { type: 'units', diff: 2, q: 'The weight of a bicycle is about 10 _____', correct: 'kg',
         hint: 'You can lift a bicycle but it takes effort — it\'s much more than just 10 g!',
         feedback: 'A bicycle weighs about 10 <strong>kg</strong>. 10 g would be lighter than two teaspoons of sugar!' },
 
       // --- BALANCE LOGIC ---
-      { type: 'balance-logic',
+      { type: 'balance-logic', diff: 3,
         premise: '⚖️ Balanced scales:\n• 1 dome = 5 small circles\n• 1 triangle = 8 small circles\n• 2 pentagons = 12 small circles',
         q: 'Which statement is correct?',
         options: ['A pentagon is heavier than a triangle.', 'A dome is lighter than a pentagon.', 'Two pentagons are lighter than a triangle.', 'A dome and a triangle weigh the same.'],
         correct: 'A dome is lighter than a pentagon.',
         hint: 'Find 1 pentagon first: 2 pentagons = 12 circles, so 1 pentagon = 6 circles. Compare that to the dome (5 circles).',
         feedback: '1 pentagon = 6 circles, dome = 5 circles. Since 5 &lt; 6, a dome IS lighter than a pentagon. ✓' },
-      { type: 'balance-logic',
+      { type: 'balance-logic', diff: 2,
         premise: '⚖️ Balanced scales:\n• 1 square = 4 small circles\n• 1 triangle = 6 small circles',
         q: 'Which statement is correct?',
         options: ['A triangle is lighter than a square.', 'A square and a triangle weigh the same.', 'A triangle is heavier than a square.', 'Two squares weigh the same as a triangle.'],
         correct: 'A triangle is heavier than a square.',
         hint: 'Square = 4 circles, triangle = 6 circles. Which number is bigger?',
         feedback: 'Triangle = 6 circles, square = 4 circles. Since 6 &gt; 4, the triangle IS heavier. ✓' },
-      { type: 'balance-logic',
+      { type: 'balance-logic', diff: 3,
         premise: '⚖️ Balanced scales:\n• 1 star = 3 small circles\n• 1 circle shape = 7 small circles\n• 2 hearts = 8 small circles',
         q: 'Which statement is correct?',
         options: ['A heart is lighter than a star.', 'A circle shape and 2 stars weigh the same.', 'A heart is heavier than a star.', 'A circle shape is lighter than 2 hearts.'],
@@ -1309,19 +1314,19 @@
         feedback: '1 heart = 4 circles, star = 3 circles. Since 4 &gt; 3, a heart IS heavier than a star. ✓' },
 
       // --- MEASURING TOOLS ---
-      { type: 'tools', obj: '🎮', objName: 'a game console',
+      { type: 'tools', diff: 1, obj: '🎮', objName: 'a game console',
         q: 'Which tool is most suitable for measuring the weight of a game console?',
         options: ['Medical syringe', 'Kitchen dial scale', 'Coiled measuring tape', 'Bathroom floor scale'],
         correct: 'Kitchen dial scale',
         hint: 'A game console weighs ~300–500 g. First cross out anything that doesn\'t measure weight!',
         feedback: 'A <strong>kitchen dial scale</strong> is best for a game console (~300–500 g). Syringes measure volume, measuring tapes measure length, and bathroom scales are too imprecise for such a light object.' },
-      { type: 'tools', obj: '📱', objName: 'a mobile phone',
+      { type: 'tools', diff: 2, obj: '📱', objName: 'a mobile phone',
         q: 'Which tool is most suitable for measuring the weight of a mobile phone?',
         options: ['Bathroom floor scale', 'Standard ruler', 'Mechanical balance scale (max 1 kg)', 'Kitchen dial scale (0–18 kg)'],
         correct: 'Mechanical balance scale (max 1 kg)',
         hint: 'A phone weighs ~150–200 g. Which tool is precise enough? (Rulers measure length, not weight!)',
         feedback: 'A <strong>mechanical balance scale (max 1 kg)</strong> is most precise for a phone (~150–200 g). The 0–18 kg dial scale would barely move. A ruler measures length, not weight!' },
-      { type: 'tools', obj: '🌾', objName: 'a 5 kg bag of rice',
+      { type: 'tools', diff: 2, obj: '🌾', objName: 'a 5 kg bag of rice',
         q: 'Which tool is most suitable for measuring the weight of a 5 kg bag of rice?',
         options: ['Kitchen scale (max 1 kg)', 'Bathroom floor scale', 'Mechanical balance scale (max 1 kg)', 'Postage scale (max 500 g)'],
         correct: 'Bathroom floor scale',
@@ -1329,21 +1334,21 @@
         feedback: 'A <strong>bathroom floor scale</strong> handles up to 100–150 kg, perfect for a 5 kg bag. All other options have a maximum well below 5 kg!' },
 
       // --- BALANCE COMPARISON ---
-      { type: 'balance-compare',
+      { type: 'balance-compare', diff: 1,
         q: 'Study the two balance scales. Arrange objects A, B and C from heaviest to lightest.',
         scales: [{tilt:'left',left:'C',right:'A'},{tilt:'right',left:'B',right:'A'}],
         options: ['C, A, B','A, C, B','B, A, C','C, B, A'],
         correct: 'C, A, B',
         hint: 'The lower pan is heavier. Scale 1: which letter\'s pan goes down? Scale 2: which pan goes down?',
         feedback: 'Scale 1 (C vs A): C\'s pan is lower → C &gt; A.<br>Scale 2 (B vs A): A\'s pan is lower → A &gt; B.<br>So C &gt; A &gt; B — heaviest to lightest: <strong>C, A, B</strong> ✓' },
-      { type: 'balance-compare',
+      { type: 'balance-compare', diff: 2,
         q: 'Study the two balance scales. Arrange objects P, Q and R from heaviest to lightest.',
         scales: [{tilt:'left',left:'P',right:'Q'},{tilt:'left',left:'R',right:'P'}],
         options: ['R, P, Q','P, R, Q','Q, P, R','R, Q, P'],
         correct: 'R, P, Q',
         hint: 'The lower pan is heavier. Find which is heaviest (Scale 2), then which is lightest (Scale 1).',
         feedback: 'Scale 1 (P vs Q): P\'s pan is lower → P &gt; Q.<br>Scale 2 (R vs P): R\'s pan is lower → R &gt; P.<br>So R &gt; P &gt; Q — heaviest to lightest: <strong>R, P, Q</strong> ✓' },
-      { type: 'balance-compare',
+      { type: 'balance-compare', diff: 2,
         q: 'Study the two balance scales. Arrange objects X, Y and Z from heaviest to lightest.',
         scales: [{tilt:'left',left:'X',right:'Z'},{tilt:'left',left:'Z',right:'Y'}],
         options: ['X, Z, Y','Z, X, Y','Y, Z, X','X, Y, Z'],
@@ -1352,25 +1357,25 @@
         feedback: 'Scale 1: X &gt; Z.<br>Scale 2: Z &gt; Y.<br>So X &gt; Z &gt; Y — heaviest to lightest: <strong>X, Z, Y</strong> ✓' },
 
       // --- DIAL SCALE READING ---
-      { type: 'dial-read',
+      { type: 'dial-read', diff: 2,
         q: 'Read the scale and write the weight in grams.',
         dialCfg: {majorMarks:[0,1,2],subdivisions:10,needleVal:0.4,unit:'kg',faceColor:'#E8F5E9'},
         answer: 400,
         hint: 'Scale unit is kg. There are 10 intervals between 0 and 1 kg, so each small tick = 0.1 kg = 100 g. Count the ticks from 0.',
         feedback: 'Each small tick = 0.1 kg = 100 g. Needle is at 4th tick from 0 = 0.4 kg = <strong>400 g</strong> ✓' },
-      { type: 'dial-read',
+      { type: 'dial-read', diff: 3,
         q: 'Read the scale and write the weight in grams.',
         dialCfg: {majorMarks:[0,1,2,3,4,5,6,7],subdivisions:5,needleVal:1.8,unit:'kg',faceColor:'#E3F2FD'},
         answer: 1800,
         hint: 'Scale unit is kg. There are 5 intervals between whole numbers, so each tick = 0.2 kg = 200 g. Needle is 1 tick before 2.',
         feedback: 'Each tick = 0.2 kg. Needle is 1 tick before 2 kg → 2 &minus; 0.2 = 1.8 kg = <strong>1800 g</strong> ✓' },
-      { type: 'dial-read',
+      { type: 'dial-read', diff: 2,
         q: 'Read the scale and write the weight in grams.',
         dialCfg: {majorMarks:[0,200,400,600,800],subdivisions:4,needleVal:800,unit:'g',faceColor:'#FFF3E0'},
         answer: 800,
         hint: 'This scale already shows grams. Look at where the needle is pointing.',
         feedback: 'The needle points exactly to 800 on the gram scale. Answer: <strong>800 g</strong> ✓' },
-      { type: 'dial-read',
+      { type: 'dial-read', diff: 3,
         q: 'A rice cooker is placed on this scale. What is its weight in grams?',
         dialCfg: {majorMarks:[0,5,10,15],subdivisions:5,needleVal:4,unit:'kg',faceColor:'#FCE4EC'},
         answer: 4000,
@@ -1378,21 +1383,21 @@
         feedback: 'Each tick = 1 kg. Needle is at 4th tick from 0 = 4 kg = <strong>4000 g</strong> ✓' },
 
       // --- READING A BALANCED SCALE ---
-      { type: 'balance-read',
+      { type: 'balance-read', diff: 2,
         q: 'The scale is balanced. What is the weight of the parcel in grams?',
         leftLabel: '📦',
         rightWeights: ['500g','200g'],
         answer: 700,
         hint: 'Add up all the standard weights on the right pan.',
         feedback: '500 g + 200 g = <strong>700 g</strong> ✓' },
-      { type: 'balance-read',
+      { type: 'balance-read', diff: 2,
         q: 'The scale is balanced. What is the weight of the gift box in grams?',
         leftLabel: '🎁',
         rightWeights: ['1 kg','300g'],
         answer: 1300,
         hint: '1 kg = 1000 g. Add 1000 g and 300 g.',
         feedback: '1000 g + 300 g = <strong>1300 g</strong> ✓' },
-      { type: 'balance-read',
+      { type: 'balance-read', diff: 3,
         q: 'The scale is balanced. What is the weight of the pumpkin in grams?',
         leftLabel: '🎃',
         rightWeights: ['500g','500g','200g'],
@@ -1401,7 +1406,7 @@
         feedback: '500 + 500 + 200 = <strong>1200 g</strong> ✓' },
 
       // --- WEIGHT COMPARISON (two dials) ---
-      { type: 'weight-compare',
+      { type: 'weight-compare', diff: 1,
         q: 'Look at both scales. Which object is lighter?',
         dial1: {majorMarks:[0,1,2,3],subdivisions:5,needleVal:0.6,unit:'kg',faceColor:'#E8F5E9'},
         dial2: {majorMarks:[0,1,2,3],subdivisions:5,needleVal:2.0,unit:'kg',faceColor:'#FCE4EC'},
@@ -1410,7 +1415,7 @@
         correct: 'Object A',
         hint: 'Compare the needle positions. The needle pointing closer to 0 is lighter.',
         feedback: 'A = 0.6 kg, B = 2.0 kg. <strong>Object A</strong> is lighter ✓' },
-      { type: 'weight-compare',
+      { type: 'weight-compare', diff: 3,
         q: 'Look at both scales. How much heavier is Object B than Object A? (in grams)',
         dial1: {majorMarks:[0,200,400,600,800,1000],subdivisions:4,needleVal:200,unit:'g',faceColor:'#E3F2FD'},
         dial2: {majorMarks:[0,200,400,600,800,1000],subdivisions:4,needleVal:600,unit:'g',faceColor:'#FFF3E0'},
@@ -1419,7 +1424,7 @@
         answer: 400,
         hint: 'Subtract A\'s weight from B\'s weight. Read each needle carefully.',
         feedback: 'A = 200 g, B = 600 g. 600 − 200 = <strong>400 g</strong> ✓' },
-      { type: 'weight-compare',
+      { type: 'weight-compare', diff: 1,
         q: 'Look at both scales. Which object is heavier?',
         dial1: {majorMarks:[0,1,2,3,4,5],subdivisions:5,needleVal:3.5,unit:'kg',faceColor:'#EDE7F6'},
         dial2: {majorMarks:[0,1,2,3,4,5],subdivisions:5,needleVal:1.5,unit:'kg',faceColor:'#E0F7FA'},
@@ -1429,6 +1434,52 @@
         hint: 'Which needle points to a higher number?',
         feedback: 'A = 3.5 kg, B = 1.5 kg. <strong>Object A</strong> is heavier ✓' },
     ];
+
+    // ═══════════════════════════════════════════
+    //   ADAPTIVE DIFFICULTY
+    // ═══════════════════════════════════════════
+
+    const WEIGHT_DIFFICULTY_KEY = 'weight-challenge-difficulty';
+    function getDifficulty() {
+      const d = parseInt(localStorage.getItem(WEIGHT_DIFFICULTY_KEY));
+      return (d >= 1 && d <= 5) ? d : 3;
+    }
+    function setDifficulty(level) {
+      localStorage.setItem(WEIGHT_DIFFICULTY_KEY, Math.max(1, Math.min(5, level)));
+    }
+
+    // diff 1 (easy): 10 problems — convert(1kg,2kg), units(fridge,basketball,baby,apple), tools(console), balance-compare(A,B,C), weight-compare(lighter,heavier MC)
+    // diff 2 (medium): 12 problems — convert(mixed), units(bicycle), balance-logic(sq/tri), tools(phone,rice), balance-compare(P,Q,R;X,Z,Y), dial-read(0.4kg,800g), balance-read(700g,1300g)
+    // diff 3 (hard): 9 problems — convert(tricky zeros), balance-logic(pentagon,heart), dial-read(1.8kg,4kg), balance-read(1200g), weight-compare(numeric)
+    const weightDifficultyConfig = {
+      1: { label: 'Starter', timer: 150, easyCount: 10, medCount: 0, hardCount: 0 },
+      2: { label: 'Easy',    timer: 135, easyCount: 6,  medCount: 4, hardCount: 0 },
+      3: { label: 'Medium',  timer: 120, easyCount: 3,  medCount: 5, hardCount: 2 },
+      4: { label: 'Tricky',  timer: 105, easyCount: 1,  medCount: 4, hardCount: 5 },
+      5: { label: 'Expert',  timer: 90,  easyCount: 0,  medCount: 3, hardCount: 7 },
+    };
+
+    function buildChallengeQueue() {
+      const cfg = weightDifficultyConfig[getDifficulty()];
+      const easy = shuffle(practiceProblems.filter(p => p.diff === 1));
+      const med  = shuffle(practiceProblems.filter(p => p.diff === 2));
+      const hard = shuffle(practiceProblems.filter(p => p.diff === 3));
+      return shuffle([
+        ...easy.slice(0, cfg.easyCount),
+        ...med.slice(0, cfg.medCount),
+        ...hard.slice(0, cfg.hardCount),
+      ]);
+    }
+
+    function adjustDifficulty(correct) {
+      const current = getDifficulty();
+      let next = current;
+      if (correct <= 2)      next = current - 2;
+      else if (correct <= 4) next = current - 1;
+      else if (correct >= 8) next = current + 1;
+      // 5–7 correct → stay same
+      setDifficulty(next);
+    }
 
     // ═══════════════════════════════════════════
     //   PRACTICE MODE
@@ -1616,10 +1667,16 @@
     // ═══════════════════════════════════════════
 
     function startChallenge() {
-      chScore = 0; chIdx = 0; chTimer = 90; chAnswered = false;
-      chQueue = shuffle([...practiceProblems]).slice(0, 10);
+      chScore = 0; chIdx = 0; chAnswered = false;
+      chTimer = weightDifficultyConfig[getDifficulty()].timer;
+      chQueue = buildChallengeQueue();
       if (chInterval) clearInterval(chInterval);
       chInterval = setInterval(tickChallenge, 1000);
+      const timerEl = document.getElementById('ch-timer');
+      const mins = Math.floor(chTimer / 60);
+      const secs = chTimer % 60;
+      timerEl.textContent = mins + ':' + String(secs).padStart(2, '0');
+      timerEl.classList.remove('warning');
       updateChStats();
       renderChallengeQuestion();
     }
@@ -1638,6 +1695,7 @@
       document.getElementById('ch-score').textContent = chScore;
       document.getElementById('ch-qnum').textContent =
         (Math.min(chIdx, chQueue.length - 1) + 1) + '/' + chQueue.length;
+      document.getElementById('ch-level').textContent = weightDifficultyConfig[getDifficulty()].label;
     }
 
     function renderChallengeQuestion() {
@@ -1782,6 +1840,7 @@
 
     function endChallenge() {
       if (chInterval) { clearInterval(chInterval); chInterval = null; }
+      adjustDifficulty(chScore / 10);
       showResults(chScore, 100, true);
     }
 
@@ -1807,8 +1866,12 @@
 
       if (isChallenge) {
         document.getElementById('results-score').textContent = `You scored ${score} out of 100 (${score}%)`;
+        const nextDiff = getDifficulty();
+        document.getElementById('results-next-level').textContent =
+          `Next challenge: ${weightDifficultyConfig[nextDiff].label} level`;
       } else {
         document.getElementById('results-score').textContent = `You got ${score} / ${total} correct!`;
+        document.getElementById('results-next-level').textContent = '';
       }
     }
 
