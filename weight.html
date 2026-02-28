@@ -1362,24 +1362,31 @@
     const practiceProblems = [
       // --- UNIT CONVERSION ---
       { type: 'convert', diff: 1, q: '2 kg = _____ g', answer: 2000,
+        options: ['20 g', '200 g', '2000 g', '20000 g'], correct: '2000 g',
         hint: '1 kg = 1000 g, so 2 kg = 2 &times; 1000',
         feedback: '2 &times; 1000 = <strong>2000 g</strong> ✓' },
       { type: 'convert', diff: 1, q: '1 kg = _____ g', answer: 1000,
+        options: ['10 g', '100 g', '1000 g', '10000 g'], correct: '1000 g',
         hint: 'The basic rule: 1 kg = 1000 g',
         feedback: '1 kg = <strong>1000 g</strong> — always! ✓' },
       { type: 'convert', diff: 2, q: '3 kg 500 g = _____ g', answer: 3500,
+        options: ['350 g', '3050 g', '3500 g', '4500 g'], correct: '3500 g',
         hint: 'Convert the kg part first: 3 kg = 3000 g, then add 500 g',
         feedback: '3 &times; 1000 + 500 = 3000 + 500 = <strong>3500 g</strong> ✓' },
       { type: 'convert', diff: 3, q: '4 kg 50 g = _____ g', answer: 4050,
+        options: ['450 g', '4050 g', '4500 g', '40050 g'], correct: '4050 g',
         hint: '4 kg = 4000 g, then add the 50 g part',
         feedback: '4 &times; 1000 + 50 = 4000 + 50 = <strong>4050 g</strong> ✓' },
       { type: 'convert', diff: 2, q: '5 kg 200 g = _____ g', answer: 5200,
+        options: ['520 g', '5020 g', '5200 g', '5002 g'], correct: '5200 g',
         hint: '5 kg = 5000 g, then add 200 g',
         feedback: '5 &times; 1000 + 200 = 5000 + 200 = <strong>5200 g</strong> ✓' },
       { type: 'convert', diff: 3, q: '10 kg 300 g = _____ g', answer: 10300,
+        options: ['1030 g', '10030 g', '10300 g', '103000 g'], correct: '10300 g',
         hint: '10 kg = 10 000 g, then add 300 g',
         feedback: '10 &times; 1000 + 300 = 10 000 + 300 = <strong>10 300 g</strong> ✓' },
       { type: 'convert', diff: 3, q: '20 kg 20 g = _____ g', answer: 20020,
+        options: ['2020 g', '20200 g', '20020 g', '20002 g'], correct: '20020 g',
         hint: '20 kg = 20 000 g, then add just 20 g — watch the zeros!',
         feedback: '20 &times; 1000 + 20 = 20 000 + 20 = <strong>20 020 g</strong> ✓' },
 
@@ -1470,25 +1477,25 @@
       { type: 'dial-read', diff: 2,
         q: 'Read the scale and write the weight in grams.',
         dialCfg: {majorMarks:[0,1,2],subdivisions:10,needleVal:0.4,unit:'kg',faceColor:'#E8F5E9'},
-        answer: 400,
+        answer: 400, options: ['200 g', '400 g', '600 g', '1400 g'], correct: '400 g',
         hint: 'Scale unit is kg. There are 10 intervals between 0 and 1 kg, so each small tick = 0.1 kg = 100 g. Count the ticks from 0.',
         feedback: 'Each small tick = 0.1 kg = 100 g. Needle is at 4th tick from 0 = 0.4 kg = <strong>400 g</strong> ✓' },
       { type: 'dial-read', diff: 3,
         q: 'Read the scale and write the weight in grams.',
         dialCfg: {majorMarks:[0,1,2,3,4,5,6,7],subdivisions:5,needleVal:1.8,unit:'kg',faceColor:'#E3F2FD'},
-        answer: 1800,
+        answer: 1800, options: ['1400 g', '1600 g', '1800 g', '2000 g'], correct: '1800 g',
         hint: 'Scale unit is kg. There are 5 intervals between whole numbers, so each tick = 0.2 kg = 200 g. Needle is 1 tick before 2.',
         feedback: 'Each tick = 0.2 kg. Needle is 1 tick before 2 kg → 2 &minus; 0.2 = 1.8 kg = <strong>1800 g</strong> ✓' },
       { type: 'dial-read', diff: 2,
         q: 'Read the scale and write the weight in grams.',
         dialCfg: {majorMarks:[0,200,400,600,800],subdivisions:4,needleVal:800,unit:'g',faceColor:'#FFF3E0'},
-        answer: 800,
+        answer: 800, options: ['400 g', '600 g', '800 g', '1000 g'], correct: '800 g',
         hint: 'This scale already shows grams. Look at where the needle is pointing.',
         feedback: 'The needle points exactly to 800 on the gram scale. Answer: <strong>800 g</strong> ✓' },
       { type: 'dial-read', diff: 3,
         q: 'A rice cooker is placed on this scale. What is its weight in grams?',
         dialCfg: {majorMarks:[0,5,10,15],subdivisions:5,needleVal:4,unit:'kg',faceColor:'#FCE4EC'},
-        answer: 4000,
+        answer: 4000, options: ['3000 g', '4000 g', '5000 g', '6000 g'], correct: '4000 g',
         hint: 'There are 5 intervals between 0 and 5 kg, so each tick = 1 kg = 1000 g. Count from 0.',
         feedback: 'Each tick = 1 kg. Needle is at 4th tick from 0 = 4 kg = <strong>4000 g</strong> ✓' },
 
@@ -1497,21 +1504,21 @@
         q: 'The scale is balanced. What is the weight of the parcel in grams?',
         leftLabel: '📦',
         rightWeights: ['500g','200g'],
-        answer: 700,
+        answer: 700, options: ['300 g', '500 g', '700 g', '900 g'], correct: '700 g',
         hint: 'Add up all the standard weights on the right pan.',
         feedback: '500 g + 200 g = <strong>700 g</strong> ✓' },
       { type: 'balance-read', diff: 2,
         q: 'The scale is balanced. What is the weight of the gift box in grams?',
         leftLabel: '🎁',
         rightWeights: ['1 kg','300g'],
-        answer: 1300,
+        answer: 1300, options: ['800 g', '1100 g', '1300 g', '1500 g'], correct: '1300 g',
         hint: '1 kg = 1000 g. Add 1000 g and 300 g.',
         feedback: '1000 g + 300 g = <strong>1300 g</strong> ✓' },
       { type: 'balance-read', diff: 3,
         q: 'The scale is balanced. What is the weight of the pumpkin in grams?',
         leftLabel: '🎃',
         rightWeights: ['500g','500g','200g'],
-        answer: 1200,
+        answer: 1200, options: ['900 g', '1000 g', '1200 g', '1400 g'], correct: '1200 g',
         hint: 'Add all three standard weights together.',
         feedback: '500 + 500 + 200 = <strong>1200 g</strong> ✓' },
 
@@ -1530,7 +1537,7 @@
         dial1: {majorMarks:[0,200,400,600,800,1000],subdivisions:4,needleVal:200,unit:'g',faceColor:'#E3F2FD'},
         dial2: {majorMarks:[0,200,400,600,800,1000],subdivisions:4,needleVal:600,unit:'g',faceColor:'#FFF3E0'},
         label1: 'Object A', label2: 'Object B',
-        isNumeric: true,
+        options: ['200 g', '400 g', '600 g', '800 g'], correct: '400 g',
         answer: 400,
         hint: 'Subtract A\'s weight from B\'s weight. Read each needle carefully.',
         feedback: 'A = 200 g, B = 600 g. 600 − 200 = <strong>400 g</strong> ✓' },
@@ -1617,14 +1624,6 @@
       practiceSelected = null;
       const p = practiceQueue[practiceIdx];
       document.getElementById('practice-question-area').innerHTML = buildPracticeHTML(p);
-      if (p.type === 'convert' || p.type === 'dial-read' || p.type === 'balance-read' || (p.type === 'weight-compare' && p.isNumeric)) {
-        const inp = document.getElementById('prac-input');
-        inp.addEventListener('keydown', e => { if (e.key === 'Enter') submitPractice(); });
-        inp.addEventListener('input', () => {
-          document.getElementById('prac-submit').disabled = inp.value.trim() === '';
-        });
-        inp.focus();
-      }
     }
 
     function buildPracticeHTML(p) {
@@ -1632,8 +1631,11 @@
 
       if (p.type === 'convert') {
         html += `Fill in the blank:</div>`;
-        html += `<div style="font-family:'Fredoka One',cursive;font-size:1.4rem;text-align:center;margin:10px 0 4px;">${p.q}</div>`;
-        html += `<input id="prac-input" type="number" class="answer-input" placeholder="?" autocomplete="off" inputmode="numeric">`;
+        html += `<div style="font-family:'Fredoka One',cursive;font-size:1.4rem;text-align:center;margin:10px 0 16px;">${p.q}</div>`;
+        const cOpts = shuffle([...p.options]);
+        html += `<div class="options-grid" id="opt-grid">`;
+        for (const o of cOpts) html += `<button class="option-btn" data-val="${o}" onclick="selectPracOption(this)">${o}</button>`;
+        html += `</div>`;
         html += `<button id="prac-submit" class="submit-btn" onclick="submitPractice()" disabled>Check Answer ✓</button>`;
 
       } else if (p.type === 'units') {
@@ -1687,30 +1689,31 @@
       } else if (p.type === 'dial-read') {
         html += `${p.q}</div>`;
         html += `<div style="display:flex;justify-content:center;margin:10px 0 14px;">${makeDialSVG(p.dialCfg)}</div>`;
-        html += `<input id="prac-input" type="number" class="answer-input" placeholder="? g" autocomplete="off" inputmode="numeric">`;
+        const dOpts = shuffle([...p.options]);
+        html += `<div class="options-grid" id="opt-grid">`;
+        for (const o of dOpts) html += `<button class="option-btn" data-val="${o}" onclick="selectPracOption(this)">${o}</button>`;
+        html += `</div>`;
         html += `<button id="prac-submit" class="submit-btn" onclick="submitPractice()" disabled>Check Answer ✓</button>`;
 
       } else if (p.type === 'balance-read') {
         html += `${p.q}</div>`;
         html += `<div style="display:flex;justify-content:center;margin:10px 0 14px;">${makeBalanceReadSVG(p.leftLabel, p.rightWeights)}</div>`;
-        html += `<input id="prac-input" type="number" class="answer-input" placeholder="? g" autocomplete="off" inputmode="numeric">`;
+        const brOpts = shuffle([...p.options]);
+        html += `<div class="options-grid" id="opt-grid">`;
+        for (const o of brOpts) html += `<button class="option-btn" data-val="${o}" onclick="selectPracOption(this)">${o}</button>`;
+        html += `</div>`;
         html += `<button id="prac-submit" class="submit-btn" onclick="submitPractice()" disabled>Check Answer ✓</button>`;
 
       } else if (p.type === 'weight-compare') {
         html += `${p.q}</div>`;
         html += `<div style="display:flex;justify-content:center;margin:8px 0 14px;">${makeDoubleDialSVG(p.dial1, p.dial2, p.label1, p.label2)}</div>`;
-        if (p.isNumeric) {
-          html += `<input id="prac-input" type="number" class="answer-input" placeholder="? g" autocomplete="off" inputmode="numeric">`;
-          html += `<button id="prac-submit" class="submit-btn" onclick="submitPractice()" disabled>Check Answer ✓</button>`;
-        } else {
-          const wOpts = shuffle([...p.options]);
-          html += `<div class="options-grid" id="opt-grid">`;
-          for (const o of wOpts) {
-            html += `<button class="option-btn" data-val="${o}" onclick="selectPracOption(this)">${o}</button>`;
-          }
-          html += `</div>`;
-          html += `<button id="prac-submit" class="submit-btn" onclick="submitPractice()" disabled>Check Answer ✓</button>`;
+        const wOpts = shuffle([...p.options]);
+        html += `<div class="options-grid" id="opt-grid">`;
+        for (const o of wOpts) {
+          html += `<button class="option-btn" data-val="${o}" onclick="selectPracOption(this)">${o}</button>`;
         }
+        html += `</div>`;
+        html += `<button id="prac-submit" class="submit-btn" onclick="submitPractice()" disabled>Check Answer ✓</button>`;
       }
 
       html += `<button class="hint-btn" id="hint-toggle" onclick="document.getElementById('hint-box').style.display='block';this.style.display='none';">💡 Need a hint?</button>`;
@@ -1735,21 +1738,13 @@
       const p = practiceQueue[practiceIdx];
       let isCorrect = false;
 
-      if (p.type === 'convert' || p.type === 'dial-read' || p.type === 'balance-read' || (p.type === 'weight-compare' && p.isNumeric)) {
-        const inp = document.getElementById('prac-input');
-        isCorrect = (parseInt(inp.value, 10) === p.answer);
-        inp.disabled = true;
-        inp.style.borderColor = isCorrect ? 'var(--success)' : 'var(--error)';
-        inp.style.background = isCorrect ? '#F0FDF4' : '#FEF2F2';
-      } else {
-        isCorrect = (practiceSelected === p.correct);
-        document.querySelectorAll('#opt-grid .option-btn').forEach(b => {
-          b.disabled = true;
-          b.onclick = null;
-          if (b.dataset.val === p.correct) b.classList.add('correct');
-          else if (b.classList.contains('selected') && !isCorrect) b.classList.add('wrong');
-        });
-      }
+      isCorrect = (practiceSelected === p.correct);
+      document.querySelectorAll('#opt-grid .option-btn').forEach(b => {
+        b.disabled = true;
+        b.onclick = null;
+        if (b.dataset.val === p.correct) b.classList.add('correct');
+        else if (b.classList.contains('selected') && !isCorrect) b.classList.add('wrong');
+      });
 
       if (isCorrect) practiceScore++;
 
@@ -1816,9 +1811,10 @@
 
       if (p.type === 'convert') {
         html += `<div class="question-text" style="text-align:center;">${p.q}</div>`;
-        html += `<input id="ch-input" type="number" class="answer-input" placeholder="?" autocomplete="off" inputmode="numeric">`;
-        html += `<div id="ch-flash" style="text-align:center;font-size:1.1rem;font-weight:700;min-height:1.8rem;margin:6px 0;"></div>`;
-        html += `<button id="ch-submit" class="submit-btn" onclick="answerChallengeInput()">Submit ✓</button>`;
+        const cOpts = shuffle([...p.options]);
+        html += `<div class="options-grid">`;
+        for (const o of cOpts) html += `<button class="option-btn" data-val="${o}" onclick="answerChallenge(this)">${o}</button>`;
+        html += `</div>`;
 
       } else if (p.type === 'units') {
         html += `<div class="question-text">${p.q}</div>`;
@@ -1866,43 +1862,32 @@
       } else if (p.type === 'dial-read') {
         html += `<div class="question-text" style="text-align:center;">${p.q}</div>`;
         html += `<div style="display:flex;justify-content:center;margin:8px 0;">${makeDialSVG(p.dialCfg)}</div>`;
-        html += `<input id="ch-input" type="number" class="answer-input" placeholder="? g" autocomplete="off" inputmode="numeric">`;
-        html += `<div id="ch-flash" style="text-align:center;font-size:1.1rem;font-weight:700;min-height:1.8rem;margin:6px 0;"></div>`;
-        html += `<button id="ch-submit" class="submit-btn" onclick="answerChallengeInput()">Submit ✓</button>`;
+        const dOpts = shuffle([...p.options]);
+        html += `<div class="options-grid">`;
+        for (const o of dOpts) html += `<button class="option-btn" data-val="${o}" onclick="answerChallenge(this)">${o}</button>`;
+        html += `</div>`;
 
       } else if (p.type === 'balance-read') {
         html += `<div class="question-text" style="text-align:center;">${p.q}</div>`;
         html += `<div style="display:flex;justify-content:center;margin:8px 0;">${makeBalanceReadSVG(p.leftLabel, p.rightWeights)}</div>`;
-        html += `<input id="ch-input" type="number" class="answer-input" placeholder="? g" autocomplete="off" inputmode="numeric">`;
-        html += `<div id="ch-flash" style="text-align:center;font-size:1.1rem;font-weight:700;min-height:1.8rem;margin:6px 0;"></div>`;
-        html += `<button id="ch-submit" class="submit-btn" onclick="answerChallengeInput()">Submit ✓</button>`;
+        const brOpts = shuffle([...p.options]);
+        html += `<div class="options-grid">`;
+        for (const o of brOpts) html += `<button class="option-btn" data-val="${o}" onclick="answerChallenge(this)">${o}</button>`;
+        html += `</div>`;
 
       } else if (p.type === 'weight-compare') {
         html += `<div class="question-text" style="text-align:center;">${p.q}</div>`;
         html += `<div style="display:flex;justify-content:center;margin:6px 0;">${makeDoubleDialSVG(p.dial1, p.dial2, p.label1, p.label2)}</div>`;
-        if (p.isNumeric) {
-          html += `<input id="ch-input" type="number" class="answer-input" placeholder="? g" autocomplete="off" inputmode="numeric">`;
-          html += `<div id="ch-flash" style="text-align:center;font-size:1.1rem;font-weight:700;min-height:1.8rem;margin:6px 0;"></div>`;
-          html += `<button id="ch-submit" class="submit-btn" onclick="answerChallengeInput()">Submit ✓</button>`;
-        } else {
-          const wOpts = shuffle([...p.options]);
-          html += `<div class="options-grid">`;
-          for (const o of wOpts) {
-            html += `<button class="option-btn" data-val="${o}" onclick="answerChallenge(this)">${o}</button>`;
-          }
-          html += `</div>`;
+        const wOpts = shuffle([...p.options]);
+        html += `<div class="options-grid">`;
+        for (const o of wOpts) {
+          html += `<button class="option-btn" data-val="${o}" onclick="answerChallenge(this)">${o}</button>`;
         }
+        html += `</div>`;
       }
 
       document.getElementById('challenge-question-area').innerHTML = html;
 
-      if (p.type === 'convert' || p.type === 'dial-read' || p.type === 'balance-read' || (p.type === 'weight-compare' && p.isNumeric)) {
-        const inp = document.getElementById('ch-input');
-        if (inp) {
-          inp.addEventListener('keydown', e => { if (e.key === 'Enter') answerChallengeInput(); });
-          inp.focus();
-        }
-      }
     }
 
     function answerChallenge(btn) {
