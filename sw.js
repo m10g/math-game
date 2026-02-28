@@ -1,4 +1,6 @@
-const CACHE = 'math-game-v1.3.0';
+importScripts('version.js'); // provides APP_VERSION
+
+const CACHE = 'math-game-' + APP_VERSION;
 const ASSETS = [
   '.',
   'index.html',

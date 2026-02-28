@@ -1,21 +1,25 @@
-// Shared version — update here to change all pages
+// Shared version — update this one number for every release
 var APP_VERSION = 'v1.3.0';
-document.addEventListener('DOMContentLoaded', function() {
-  var el = document.querySelector('.app-footer');
-  if (el) el.textContent = APP_VERSION;
-});
 
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').then(function(reg) {
-    reg.addEventListener('updatefound', function() {
-      var newSW = reg.installing;
-      newSW.addEventListener('statechange', function() {
-        if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
-          showUpdateBanner();
-        }
+// Guard: sw.js imports this file too, but has no document/navigator
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', function() {
+    var el = document.querySelector('.app-footer');
+    if (el) el.textContent = APP_VERSION;
+  });
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').then(function(reg) {
+      reg.addEventListener('updatefound', function() {
+        var newSW = reg.installing;
+        newSW.addEventListener('statechange', function() {
+          if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+            showUpdateBanner();
+          }
+        });
       });
     });
-  });
+  }
 }
 
 function showUpdateBanner() {
