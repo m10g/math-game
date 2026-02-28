@@ -562,6 +562,41 @@
     }
 
     .stats-bar .timer.warning { color: #DC2626; animation: twinkle 0.6s ease-in-out infinite; }
+
+    .premise-svg-box {
+      background: linear-gradient(135deg, #F0FDF4, #DCFCE7);
+      border-radius: 14px;
+      padding: 12px 16px 14px;
+      margin: 4px 0 16px;
+      border-left: 4px solid var(--success);
+    }
+    .premise-svg-header {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #166534;
+    }
+    .premise-svg-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 5px 0;
+      flex-wrap: wrap;
+    }
+    .premise-shape-group {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 3px;
+    }
+    .premise-circles { max-width: 160px; }
+    .premise-eq-sign {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #374151;
+      flex-shrink: 0;
+      line-height: 1;
+    }
   </style>
 </head>
 <body>
@@ -1252,6 +1287,75 @@
     }
 
     // ═══════════════════════════════════════════
+    //   BALANCE-LOGIC SHAPE SVG HELPERS
+    // ═══════════════════════════════════════════
+
+    function makeShapeIconSVG(name, sz) {
+      sz = sz || 38;
+      // Normalize: lowercase, strip trailing 's' for plurals
+      const n = name.toLowerCase().replace(/s$/, '').trim();
+      const vb = `viewBox="0 0 38 38" width="${sz}" height="${sz}"`;
+
+      if (n === 'star') {
+        // 5-pointed star: cx=19, cy=19, outer r=16, inner r=6.5
+        const pts = '19,3 22.82,13.74 34.21,14.06 25.18,21.01 28.41,31.94 19,25.5 9.59,31.94 12.82,21.01 3.79,14.06 15.18,13.74';
+        return `<svg ${vb}><polygon points="${pts}" fill="#FCD34D" stroke="#D97706" stroke-width="1.5" stroke-linejoin="round"/></svg>`;
+      }
+      if (n === 'heart') {
+        // Two semicircle lobes (r=8.5) + bezier sides meeting at bottom point
+        return `<svg ${vb}><path d="M19,34 C13,28 2,24 2,15 A8.5,8.5,0,0,1,19,15 A8.5,8.5,0,0,1,36,15 C36,24 25,28 19,34 Z" fill="#FB7185" stroke="#E11D48" stroke-width="1.5" stroke-linejoin="round"/></svg>`;
+      }
+      if (n === 'circle shape' || n === 'circle') {
+        return `<svg ${vb}><circle cx="19" cy="19" r="16" fill="#C084FC" stroke="#7C3AED" stroke-width="1.5"/></svg>`;
+      }
+      if (n === 'dome') {
+        // Upward semicircle with flat base
+        return `<svg ${vb}><path d="M2,30 A17,17,0,0,0,36,30 Z" fill="#34D399" stroke="#059669" stroke-width="1.5"/><line x1="2" y1="30" x2="36" y2="30" stroke="#059669" stroke-width="2" stroke-linecap="round"/></svg>`;
+      }
+      if (n === 'triangle') {
+        return `<svg ${vb}><polygon points="19,3 35,35 3,35" fill="#FB923C" stroke="#EA580C" stroke-width="1.5" stroke-linejoin="round"/></svg>`;
+      }
+      if (n === 'pentagon') {
+        // Regular pentagon: cx=19, cy=20, r=16
+        const pts = '19,4 34.21,15.06 28.41,32.94 9.59,32.94 3.79,15.06';
+        return `<svg ${vb}><polygon points="${pts}" fill="#4ADE80" stroke="#16A34A" stroke-width="1.5" stroke-linejoin="round"/></svg>`;
+      }
+      if (n === 'square') {
+        return `<svg ${vb}><rect x="3" y="3" width="32" height="32" rx="4" fill="#60A5FA" stroke="#2563EB" stroke-width="1.5"/></svg>`;
+      }
+      // Fallback
+      return `<svg ${vb}><circle cx="19" cy="19" r="16" fill="#94A3B8" stroke="#64748B" stroke-width="1.5"/></svg>`;
+    }
+
+    function makeSmallCircleSVG() {
+      return `<svg viewBox="0 0 22 22" width="22" height="22"><circle cx="11" cy="11" r="8" fill="#93C5FD" stroke="#3B82F6" stroke-width="1.5"/></svg>`;
+    }
+
+    function makePremiseSVG(premiseText) {
+      const lines = premiseText.split('\n');
+      let html = `<div class="premise-svg-box">`;
+      html += `<div class="premise-svg-header">${lines[0]}</div>`;
+      for (let i = 1; i < lines.length; i++) {
+        const m = lines[i].match(/•\s*(\d+)\s+(.+?)\s*=\s*(\d+)\s+small circles?/i);
+        if (!m) continue;
+        const lhsCnt = parseInt(m[1]);
+        const shape  = m[2].trim();
+        const rhsCnt = parseInt(m[3]);
+        html += `<div class="premise-svg-row">`;
+        html += `<div class="premise-shape-group">`;
+        for (let j = 0; j < lhsCnt; j++) html += makeShapeIconSVG(shape, 38);
+        html += `</div>`;
+        html += `<span class="premise-eq-sign">=</span>`;
+        html += `<div class="premise-shape-group premise-circles">`;
+        for (let j = 0; j < rhsCnt; j++) html += makeSmallCircleSVG();
+        html += `</div>`;
+        html += `</div>`;
+      }
+      html += `</div>`;
+      return html;
+    }
+
+    // ═══════════════════════════════════════════
     //   QUESTION BANK
     // ═══════════════════════════════════════════
 
@@ -1543,7 +1647,7 @@
 
       } else if (p.type === 'balance-logic') {
         html += `${p.q}</div>`;
-        html += `<div class="premise-box" style="white-space:pre-line;">${p.premise}</div>`;
+        html += makePremiseSVG(p.premise);
         const opts = shuffle([...p.options]);
         html += `<div class="options-grid" id="opt-grid">`;
         for (const o of opts) {
@@ -1725,7 +1829,7 @@
 
       } else if (p.type === 'balance-logic') {
         html += `<div class="question-text">${p.q}</div>`;
-        html += `<div class="premise-box" style="white-space:pre-line;margin:8px 0 14px;">${p.premise}</div>`;
+        html += makePremiseSVG(p.premise);
         const opts = shuffle([...p.options]);
         html += `<div class="options-grid">`;
         for (const o of opts) {
