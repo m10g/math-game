@@ -1,5 +1,5 @@
 // Shared version — update this one number for every release
-var APP_VERSION = 'v1.3.1';
+var APP_VERSION = 'v1.3.2';
 
 // Guard: sw.js imports this file too, but has no document/navigator
 if (typeof document !== 'undefined') {
