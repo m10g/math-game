@@ -1,4 +1,4 @@
-const CACHE = 'math-game-v1';
+const CACHE = 'math-game-v1.2.3';
 const ASSETS = [
   '.',
   'index.html',
