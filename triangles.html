@@ -42,22 +42,22 @@
     .decoration {
       position: fixed;
       pointer-events: none;
-      opacity: 0.5;
+      opacity: 0.3;
       z-index: 0;
     }
     .decoration.tri1 { top: 8%; left: 4%; animation: float 4s ease-in-out infinite; }
     .decoration.tri2 { top: 25%; right: 6%; animation: float 5s ease-in-out infinite 0.5s; }
     .decoration.tri3 { bottom: 18%; left: 8%; animation: float 4.5s ease-in-out infinite 1s; }
-    .decoration.star1 { top: 14%; right: 14%; animation: twinkle 2s ease-in-out infinite; font-size: 28px; }
-    .decoration.star2 { bottom: 28%; right: 4%; animation: twinkle 2.5s ease-in-out infinite 0.3s; font-size: 24px; }
+    .decoration.star1 { top: 14%; right: 14%; animation: twinkle 2s ease-in-out infinite; font-size: 18px; }
+    .decoration.star2 { bottom: 28%; right: 4%; animation: twinkle 2.5s ease-in-out infinite 0.3s; font-size: 16px; }
 
     @keyframes float {
       0%, 100% { transform: translateY(0) rotate(0deg); }
       50% { transform: translateY(-18px) rotate(8deg); }
     }
     @keyframes twinkle {
-      0%, 100% { opacity: 0.5; transform: scale(1); }
-      50% { opacity: 1; transform: scale(1.2); }
+      0%, 100% { opacity: 0.3; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.2); }
     }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
@@ -590,13 +590,13 @@
 
   <!-- Floating decorations -->
   <div class="decoration tri1">
-    <svg width="44" height="40" viewBox="0 0 44 40"><polygon points="22,4 42,36 2,36" fill="#818CF8" opacity="0.7"/></svg>
+    <svg width="30" height="27" viewBox="0 0 44 40"><polygon points="22,4 42,36 2,36" fill="#818CF8" opacity="0.7"/></svg>
   </div>
   <div class="decoration tri2">
-    <svg width="36" height="32" viewBox="0 0 36 32"><polygon points="18,3 34,29 2,29" fill="#C084FC" opacity="0.7"/></svg>
+    <svg width="24" height="21" viewBox="0 0 36 32"><polygon points="18,3 34,29 2,29" fill="#C084FC" opacity="0.7"/></svg>
   </div>
   <div class="decoration tri3">
-    <svg width="40" height="36" viewBox="0 0 40 36"><polygon points="20,3 38,33 2,33" fill="#6366F1" opacity="0.6"/></svg>
+    <svg width="27" height="24" viewBox="0 0 40 36"><polygon points="20,3 38,33 2,33" fill="#6366F1" opacity="0.6"/></svg>
   </div>
   <div class="decoration star1">⭐</div>
   <div class="decoration star2">✨</div>
